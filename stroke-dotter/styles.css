@@ -19,6 +19,7 @@ input { font: inherit; }
 
 .masthead,
 .controls,
+.export-controls,
 .file-status {
   border-bottom: 1px solid #111;
 }
@@ -86,6 +87,60 @@ input:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
   accent-color: #111;
 }
 
+.export-controls { padding: 16px 0; }
+
+.export-spec,
+.export-status {
+  font-size: 0.875rem;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.color-control {
+  display: grid;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.color-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-input input {
+  width: 9ch;
+  min-height: 32px;
+  padding: 4px 6px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  text-transform: uppercase;
+}
+
+.color-input input[aria-invalid="true"] { border-color: #b00020; }
+
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  display: block;
+  border: 1px solid #111;
+  background: var(--swatch-color);
+}
+
+.color-control small { font-size: 0.75rem; }
+
+.export-actions { margin-top: 16px; }
+
+.export-status { margin-top: 12px; }
+
 .file-status { padding: 12px 0; }
 
 .preview {
@@ -98,7 +153,8 @@ input:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
 #preview-svg {
   width: 100%;
   max-height: 70vh;
-  color: #111;
+  color: var(--export-stroke, #111);
+  background: var(--export-background, transparent);
   overflow: visible;
 }
 
@@ -115,7 +171,8 @@ input:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
 
 @media (max-width: 640px) {
   .app { width: min(100% - 24px, 1120px); padding-top: 20px; }
-  .slider-grid { grid-template-columns: 1fr; gap: 16px; }
+  .slider-grid,
+  .color-grid { grid-template-columns: 1fr; gap: 16px; }
   .preview { min-height: 45vh; }
 }
 

@@ -16,6 +16,7 @@ Stroke Dotter is a local, browser-based SVG utility for previewing a moving dott
 - Typography: Arial/Helvetica system sans-serif.
 - Buttons are text-only rectangles: transparent background, `1px` black border, square corners. Hover/pressed states invert to black with the page background as text.
 - Sliders use native browser range controls and their exact current values appear beside each label.
+- Export color fields accept six-digit hexadecimal web colors (`#RRGGBB`), with a 24px square swatch that reflects each valid value.
 
 ## SVG and animation behavior
 
@@ -27,7 +28,14 @@ Stroke Dotter is a local, browser-based SVG utility for previewing a moving dott
 - Defaults: dash `16px`, gap `10px`, speed `48px/s`, forward direction.
 - Reduced-motion users start paused; their stroke offset is visually fixed at zero.
 
+## MP4 export
+
+- Export is a deterministic 2-second H.264/AVC MP4 at **1927 × 1158px** and **60fps** (120 rendered frames).
+- It renders the current imported SVG with the current dash, gap, speed, direction, background color, and stroke color settings—not a screen recording.
+- The browser encodes locally through WebCodecs via the locally vendored Mediabunny MP4 writer. Export requires a current Chromium-based browser with WebCodecs support; no SVG or video data is uploaded.
+
 ## Safety and accessibility
 
 - SVG files are read locally in the browser. Before display, scripting and embedded active content are removed.
+- The MP4 encoder is loaded only when Export MP4 is selected; it is locally vendored rather than loaded from a third-party CDN.
 - All actions are native buttons with visible keyboard focus states. Slider values are exposed as associated output text, and import status is announced through a live region.

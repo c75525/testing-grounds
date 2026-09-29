@@ -41,6 +41,32 @@
       </div>
     </section>
 
+    <section class="export-controls" aria-label="Video export settings">
+      <p class="export-spec">MP4 export · 1927 × 1158 px · 60 fps · 2 seconds</p>
+      <div class="color-grid">
+        <label class="color-control" for="background-color">
+          <span>Background color</span>
+          <span class="color-input">
+            <input id="background-color" type="text" value="#fffbcf" inputmode="text" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" aria-describedby="background-help">
+            <span id="background-swatch" class="color-swatch" aria-hidden="true"></span>
+          </span>
+          <small id="background-help">#RRGGBB</small>
+        </label>
+        <label class="color-control" for="stroke-color">
+          <span>Stroke color</span>
+          <span class="color-input">
+            <input id="stroke-color" type="text" value="#111111" inputmode="text" maxlength="7" pattern="#[0-9A-Fa-f]{6}" spellcheck="false" aria-describedby="stroke-help">
+            <span id="stroke-swatch" class="color-swatch" aria-hidden="true"></span>
+          </span>
+          <small id="stroke-help">#RRGGBB</small>
+        </label>
+      </div>
+      <div class="button-row export-actions">
+        <button type="button" id="export-button">Export MP4</button>
+      </div>
+      <p id="export-status" class="export-status" aria-live="polite">Export uses the current SVG and settings.</p>
+    </section>
+
     <p id="file-status" class="file-status" aria-live="polite">Previewing the included SVG.</p>
 
     <section class="preview" aria-label="Animated SVG preview">

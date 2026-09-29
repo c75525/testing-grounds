@@ -10,6 +10,12 @@ const controls = {
   dashValue: document.querySelector('#dash-value'),
   gapValue: document.querySelector('#gap-value'),
   speedValue: document.querySelector('#speed-value'),
+  background: document.querySelector('#background-color'),
+  stroke: document.querySelector('#stroke-color'),
+  backgroundSwatch: document.querySelector('#background-swatch'),
+  strokeSwatch: document.querySelector('#stroke-swatch'),
+  export: document.querySelector('#export-button'),
+  exportStatus: document.querySelector('#export-status'),
   status: document.querySelector('#file-status'),
 };
 
@@ -42,6 +48,36 @@ function syncControls() {
   controls.speedValue.value = `${speed} px/s`;
   preview.style.setProperty('--dash-length', `${dash}px`);
   preview.style.setProperty('--gap-length', `${gap}px`);
+}
+
+function normalizeColor(input) {
+  const color = input.value.trim();
+  const valid = /^#[0-9a-f]{6}$/i.test(color);
+  input.setAttribute('aria-invalid', String(!valid));
+  return valid ? color.toUpperCase() : null;
+}
+
+function syncColors() {
+  const background = normalizeColor(controls.background);
+  const stroke = normalizeColor(controls.stroke);
+  if (background) {
+    controls.background.value = background;
+    controls.backgroundSwatch.style.setProperty('--swatch-color', background);
+    preview.style.setProperty('--export-background', background);
+  }
+  if (stroke) {
+    controls.stroke.value = stroke;
+    controls.strokeSwatch.style.setProperty('--swatch-color', stroke);
+    preview.style.setProperty('--export-stroke', stroke);
+  }
+  controls.export.disabled = !(background && stroke);
+  return background && stroke ? { background, stroke } : null;
+}
+
+function exportSettings() {
+  const colors = syncColors();
+  if (!colors) return null;
+  return { ...currentSettings(), ...colors, direction };
 }
 
 function setPlayState(nextPlaying) {
@@ -110,6 +146,7 @@ function replacePreview(svg, label) {
   previousTime = undefined;
   const shapeCount = decoratePaths(preview);
   syncControls();
+  syncColors();
   controls.status.textContent = shapeCount
     ? `${label} — animating ${shapeCount} stroke${shapeCount === 1 ? '' : 's'}.`
     : `${label} — no drawable SVG shapes were found.`;
@@ -143,7 +180,34 @@ controls.reset.addEventListener('click', () => {
   control.addEventListener('input', syncControls);
 });
 
+[controls.background, controls.stroke].forEach(control => {
+  control.addEventListener('input', syncColors);
+  control.addEventListener('blur', syncColors);
+});
+
+controls.export.addEventListener('click', async () => {
+  const settings = exportSettings();
+  if (!settings) {
+    controls.exportStatus.textContent = 'Use six-digit hex colors, for example #111111.';
+    return;
+  }
+  controls.export.disabled = true;
+  controls.exportStatus.textContent = 'Preparing 120 frames…';
+  try {
+    const { exportMp4, exportSpec } = await import('./exporter.js');
+    await exportMp4(preview, settings, (frame, total) => {
+      controls.exportStatus.textContent = `Rendering frame ${frame} of ${total}…`;
+    });
+    controls.exportStatus.textContent = `Downloaded MP4 — ${exportSpec}.`;
+  } catch (error) {
+    controls.exportStatus.textContent = error.message || 'The MP4 could not be exported.';
+  } finally {
+    syncColors();
+  }
+});
+
 replacePreview(preview, 'Previewing the included SVG');
+syncColors();
 setDirection(1);
 setPlayState(playing);
 requestAnimationFrame(animate);
