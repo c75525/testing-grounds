@@ -7,7 +7,7 @@ An image-led portfolio of professionally demonstrative creative projects. It sup
 ## Visual system
 
 - Background: `#000000`.
-- Primary/body text: `#e1dee8`.
+- Primary/body text: `#fffbef`.
 - Portfolio name: `#fffbcf`.
 - Type: locally hosted Areal variable font (`assets/fonts/ABCArealVariable.ttf`) for all typography.
 - No decoration, cards, rounded containers, gradients, or icons.
