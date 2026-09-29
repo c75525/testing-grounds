@@ -8,7 +8,7 @@ An image-led portfolio of professionally demonstrative creative projects. It sup
 
 - Background: `#000000`.
 - Primary/body text: `#e1ede8`.
-- Portfolio name: `#fffbcf`.
+- Portfolio name and project site titles: `#fffbcf`.
 - Type: locally hosted Areal variable font (`assets/fonts/ABCArealVariable.ttf`) for all typography.
 - No decoration, cards, rounded containers, gradients, or icons.
 

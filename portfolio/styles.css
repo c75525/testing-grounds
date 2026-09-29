@@ -125,7 +125,7 @@ h1 {
 h2 {
   grid-area: title;
   width: 100%;
-  color: #e1ede8;
+  color: #fffbcf;
   font-size: var(--project-copy-size);
   font-weight: 400;
   font-style: italic;
