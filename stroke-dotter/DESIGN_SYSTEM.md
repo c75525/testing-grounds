@@ -20,11 +20,11 @@ Stroke Dotter is a local, browser-based SVG utility for previewing a moving dott
 ## SVG and animation behavior
 
 - Supported drawable SVG primitives are `path`, `line`, `polyline`, `polygon`, `rect`, `circle`, and `ellipse`.
-- Imported shapes are rendered as a black outline with `fill: none`, `3px` round-capped strokes, and a non-scaling stroke.
+- Imported shapes are rendered as a black outline with `fill: none`, `1.5px` round-capped strokes, and a non-scaling stroke. The thinner outline and longer dash segments make the motion read as a curved dashed line rather than large dots.
 - **Dash length** and **gap length** use CSS/SVG pixel (`px`) units.
 - **Speed** is expressed in `px/s`: SVG user units advanced each second. In normal SVG usage these map directly to CSS pixels.
 - The animation changes `stroke-dashoffset` in a `requestAnimationFrame` loop. Direction flips the sign of that offset progression.
-- Defaults: dash `8px`, gap `12px`, speed `48px/s`, forward direction.
+- Defaults: dash `16px`, gap `10px`, speed `48px/s`, forward direction.
 - Reduced-motion users start paused; their stroke offset is visually fixed at zero.
 
 ## Safety and accessibility

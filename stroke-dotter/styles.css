@@ -105,7 +105,7 @@ input:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
 #preview-svg .dotter-path {
   fill: none !important;
   stroke: currentColor !important;
-  stroke-width: 3px !important;
+  stroke-width: 1.5px !important;
   stroke-linecap: round !important;
   stroke-linejoin: round !important;
   stroke-dasharray: var(--dash-length) var(--gap-length) !important;

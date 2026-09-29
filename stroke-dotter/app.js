@@ -131,8 +131,8 @@ controls.file.addEventListener('change', async () => {
 controls.direction.addEventListener('click', () => setDirection(direction * -1));
 controls.play.addEventListener('click', () => setPlayState(!playing));
 controls.reset.addEventListener('click', () => {
-  controls.dash.value = '8';
-  controls.gap.value = '12';
+  controls.dash.value = '16';
+  controls.gap.value = '10';
   controls.speed.value = '48';
   setDirection(1);
   setPlayState(!matchMedia('(prefers-reduced-motion: reduce)').matches);
