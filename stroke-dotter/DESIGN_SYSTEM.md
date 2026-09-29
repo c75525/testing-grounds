@@ -30,7 +30,7 @@ Stroke Dotter is a local, browser-based SVG utility for previewing a moving dott
 
 ## MP4 export
 
-- Export is a deterministic 2-second H.264/AVC MP4 at **1927 × 1158px** and **60fps** (120 rendered frames), with exactly **30px** padding at the left/right and **20px** at the top/bottom. The selected export background fills that padding.
+- Export is a deterministic 2-second AV1 MP4 at **1927 × 1158px** and **60fps** (120 rendered frames), with exactly **30px** padding at the left/right and **20px** at the top/bottom. The selected export background fills that padding. AV1 is used because the requested 1927px width is odd; H.264/AVC 4:2:0 encoding requires both dimensions to be even.
 - It renders the current imported SVG with the current dash, gap, speed, direction, background color, and stroke color settings—not a screen recording.
 - The browser encodes locally through WebCodecs via the locally vendored Mediabunny MP4 writer. Export requires a current Chromium-based browser with WebCodecs support; no SVG or video data is uploaded.
 

@@ -91,7 +91,7 @@ export async function exportMp4(preview, settings, onProgress) {
     target: new BufferTarget(),
   });
   const source = new CanvasSource(canvas, {
-    codec: 'avc',
+    codec: 'av1',
     quality: new Quality({ bitrate: 16_000_000 }),
   });
 
@@ -101,7 +101,7 @@ export async function exportMp4(preview, settings, onProgress) {
   for (let frame = 0; frame < TOTAL_FRAMES; frame += 1) {
     const timestamp = frame / FRAME_RATE;
     await drawFrame(context, preview, settings, timestamp);
-    source.add(timestamp, 1 / FRAME_RATE);
+    await source.add(timestamp, 1 / FRAME_RATE);
     if (frame % 6 === 0) {
       onProgress?.(frame + 1, TOTAL_FRAMES);
       await new Promise(requestAnimationFrame);
