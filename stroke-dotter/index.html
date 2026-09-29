@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stroke Dotter</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <h1>Stroke Dotter</h1>
+      <p>Import an SVG and animate dots along its strokes.</p>
+    </header>
+
+    <section class="controls" aria-label="Stroke dot animation controls">
+      <div class="button-row">
+        <button type="button" id="import-button">Import SVG</button>
+        <input id="svg-file" type="file" accept="image/svg+xml,.svg" hidden>
+        <button type="button" id="direction-button" aria-pressed="false">Direction: forward</button>
+        <button type="button" id="play-button" aria-pressed="false">Pause</button>
+        <button type="button" id="reset-button">Reset</button>
+      </div>
+
+      <div class="slider-grid">
+        <label class="slider-control" for="dash-length">
+          <span>Dash length</span>
+          <output id="dash-value" for="dash-length">8 px</output>
+          <input id="dash-length" type="range" min="1" max="64" value="8" step="1">
+        </label>
+        <label class="slider-control" for="gap-length">
+          <span>Gap length</span>
+          <output id="gap-value" for="gap-length">12 px</output>
+          <input id="gap-length" type="range" min="0" max="96" value="12" step="1">
+        </label>
+        <label class="slider-control" for="speed">
+          <span>Speed</span>
+          <output id="speed-value" for="speed">48 px/s</output>
+          <input id="speed" type="range" min="0" max="360" value="48" step="1">
+        </label>
+      </div>
+    </section>
+
+    <p id="file-status" class="file-status" aria-live="polite">Previewing the included SVG.</p>
+
+    <section class="preview" aria-label="Animated SVG preview">
+      <svg id="preview-svg" viewBox="0 0 960 540" role="img" aria-label="Dotted stroke animation preview">
+        <path d="M156 334C156 185 284 99 442 126c142 24 232 129 183 234-41 87-173 112-273 76-99-35-150-128-72-197 83-74 250-67 356 7 96 67 114 181 30 249-97 80-282 75-397 4" />
+        <path d="M694 169c44 41 73 102 73 169 0 123-100 223-223 223-55 0-106-20-145-53" />
+      </svg>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

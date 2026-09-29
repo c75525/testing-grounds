@@ -1,0 +1,124 @@
+:root {
+  color: #111;
+  background: #fffbcf;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+button,
+input { font: inherit; }
+
+.app {
+  width: min(100% - 32px, 1120px);
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.masthead,
+.controls,
+.file-status {
+  border-bottom: 1px solid #111;
+}
+
+.masthead { padding-bottom: 20px; }
+
+h1,
+p { margin: 0; }
+
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.masthead p,
+.file-status {
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.controls { padding: 16px 0; }
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button {
+  min-height: 36px;
+  padding: 7px 10px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+button:hover,
+button[aria-pressed="true"] { background: #111; color: #fffbcf; }
+
+button:focus-visible,
+input:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
+
+.slider-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.slider-control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+
+.slider-control output { font-variant-numeric: tabular-nums; }
+
+.slider-control input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: #111;
+}
+
+.file-status { padding: 12px 0; }
+
+.preview {
+  min-height: 55vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 0;
+}
+
+#preview-svg {
+  width: 100%;
+  max-height: 70vh;
+  color: #111;
+  overflow: visible;
+}
+
+#preview-svg .dotter-path {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 3px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  stroke-dasharray: var(--dash-length) var(--gap-length) !important;
+  stroke-dashoffset: var(--dash-offset) !important;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (max-width: 640px) {
+  .app { width: min(100% - 24px, 1120px); padding-top: 20px; }
+  .slider-grid { grid-template-columns: 1fr; gap: 16px; }
+  .preview { min-height: 45vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #preview-svg .dotter-path { stroke-dashoffset: 0 !important; }
+}
