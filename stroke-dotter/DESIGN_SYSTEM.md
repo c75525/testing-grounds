@@ -16,7 +16,7 @@ Stroke Dotter is a local, browser-based SVG utility for previewing a moving dott
 - Typography: Arial/Helvetica system sans-serif.
 - Buttons are text-only rectangles: transparent background, `1px` black border, square corners. Hover/pressed states invert to black with the page background as text.
 - Sliders use native browser range controls and their exact current values appear beside each label.
-- Export color fields accept six-digit hexadecimal web colors (`#RRGGBB`), with a 24px square swatch that reflects each valid value.
+- Export color fields accept six-digit hexadecimal web colors (`#RRGGBB`), with a 24px square swatch that reflects each valid value. The background field also themes the entire site and preview in real time. Relative luminance determines whether body text is `#111111` or white, selecting the higher-contrast option.
 
 ## SVG and animation behavior
 

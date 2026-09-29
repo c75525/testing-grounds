@@ -57,6 +57,15 @@ function normalizeColor(input) {
   return valid ? color.toUpperCase() : null;
 }
 
+function textColorForBackground(color) {
+  const channels = [1, 3, 5].map(index => Number.parseInt(color.slice(index, index + 2), 16) / 255);
+  const linear = channels.map(channel => channel <= 0.04045
+    ? channel / 12.92
+    : ((channel + 0.055) / 1.055) ** 2.4);
+  const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+  return luminance < 0.179 ? '#FFFFFF' : '#111111';
+}
+
 function syncColors() {
   const background = normalizeColor(controls.background);
   const stroke = normalizeColor(controls.stroke);
@@ -64,6 +73,8 @@ function syncColors() {
     controls.background.value = background;
     controls.backgroundSwatch.style.setProperty('--swatch-color', background);
     preview.style.setProperty('--export-background', background);
+    document.documentElement.style.setProperty('--page-background', background);
+    document.documentElement.style.setProperty('--page-foreground', textColorForBackground(background));
   }
   if (stroke) {
     controls.stroke.value = stroke;
