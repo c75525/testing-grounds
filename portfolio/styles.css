@@ -8,7 +8,7 @@
 
 :root {
   --project-copy-size: clamp(1rem, 1.25vw, 1.25rem);
-  color: #fffbef;
+  color: #e1ede8;
   background: #000;
   font-family: 'Areal', Arial, Helvetica, sans-serif;
   font-synthesis: none;
@@ -19,7 +19,7 @@
 body {
   margin: 0;
   min-width: 320px;
-  color: #fffbef;
+  color: #e1ede8;
   background: #000;
 }
 
@@ -125,7 +125,7 @@ h1 {
 h2 {
   grid-area: title;
   width: 100%;
-  color: #fffbef;
+  color: #e1ede8;
   font-size: var(--project-copy-size);
   font-weight: 400;
   font-style: italic;
