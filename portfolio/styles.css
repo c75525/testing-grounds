@@ -7,6 +7,7 @@
 }
 
 :root {
+  --project-copy-size: clamp(1rem, 1.25vw, 1.25rem);
   color: #e1dee8;
   background: #000;
   font-family: 'Areal', Arial, Helvetica, sans-serif;
@@ -90,19 +91,22 @@ h1 {
 
 h2 {
   grid-area: title;
+  width: 100%;
   color: #e1dee8;
-  font-size: clamp(1.2rem, 1.7vw, 1.8rem);
+  font-size: var(--project-copy-size);
   font-weight: 400;
   font-style: italic;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  font-synthesis: style;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  text-align: center;
 }
 
 .project-description {
   grid-area: description;
   align-self: center;
   max-width: 34ch;
-  font-size: clamp(1rem, 1.25vw, 1.25rem);
+  font-size: var(--project-copy-size);
   line-height: 1.02;
   letter-spacing: -0.025em;
 }
@@ -128,7 +132,7 @@ h2 {
     row-gap: 16px;
   }
 
-  h2 { font-size: 1.5rem; }
+  h2 { font-size: 1rem; }
 
   .project-description {
     max-width: 40ch;
