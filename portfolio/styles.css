@@ -89,6 +89,39 @@ h1 {
 
 .slide.is-active { opacity: 1; }
 
+.slide-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.stroke-animation {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  width: 43%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stroke-animation svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stroke-animation .dotter-path {
+  fill: none !important;
+  stroke: #fff !important;
+  stroke-width: 1.5px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  stroke-dasharray: 32px 25px !important;
+  stroke-dashoffset: var(--dash-offset) !important;
+  vector-effect: non-scaling-stroke;
+}
+
 h2 {
   grid-area: title;
   width: 100%;
