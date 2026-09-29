@@ -164,7 +164,10 @@ h2 a:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
     grid-template-columns: 1fr;
     gap: 16px;
     padding: 24px 0 80px;
+    text-align: center;
   }
+
+  .site-header h1 { justify-self: center; }
 
   .project {
     grid-template-columns: 1fr;
@@ -180,6 +183,7 @@ h2 a:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
   .project-description {
     max-width: 40ch;
     font-size: 1rem;
+    text-align: center;
   }
 }
 
