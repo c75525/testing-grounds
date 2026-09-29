@@ -114,7 +114,7 @@ h1 {
 .stroke-animation .dotter-path {
   fill: none !important;
   stroke: #fff !important;
-  stroke-width: 1.5px !important;
+  stroke-width: 0.75px !important;
   stroke-linecap: round !important;
   stroke-linejoin: round !important;
   stroke-dasharray: 32px 25px !important;

@@ -24,7 +24,7 @@ An image-led portfolio of professionally demonstrative creative projects. It sup
 - Each project begins on the first image in its ordered source list.
 - A project with multiple images cross-fades to the next image every 10 seconds using a 1200ms opacity transition, looping in order.
 - A single-image project remains static.
-- c75525.org’s third slide layers the supplied `c75525_stroke.svg` over its laptop-screen background. It uses the current Stroke Dotter configuration: `32px` dash, `25px` gap, `29px/s`, forward direction, white round-capped stroke. The SVG is scaled to 43% of the mockup width and centered at the laptop display’s visual center (`50%` horizontal, `47%` vertical).
+- c75525.org’s third slide layers the supplied `c75525_stroke.svg` over its laptop-screen background. It uses the current Stroke Dotter configuration: `32px` dash, `25px` gap, `29px/s`, forward direction, white round-capped `0.75px` stroke. The SVG is scaled to 43% of the mockup width and centered at the laptop display’s visual center (`50%` horizontal, `47%` vertical).
 - With `prefers-reduced-motion: reduce`, each project stays on its first image.
 
 ## Media convention
