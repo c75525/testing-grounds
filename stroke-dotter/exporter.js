@@ -11,6 +11,8 @@ const EXPORT_HEIGHT = 1158;
 const FRAME_RATE = 60;
 const DURATION_SECONDS = 2;
 const TOTAL_FRAMES = FRAME_RATE * DURATION_SECONDS;
+const HORIZONTAL_PADDING = 30;
+const VERTICAL_PADDING = 20;
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 function frameSvg(preview, settings, elapsedSeconds) {
@@ -52,7 +54,15 @@ async function drawFrame(context, preview, settings, elapsedSeconds) {
   image.src = url;
   try {
     await image.decode();
-    context.drawImage(image, 0, 0, EXPORT_WIDTH, EXPORT_HEIGHT);
+    context.fillStyle = settings.background;
+    context.fillRect(0, 0, EXPORT_WIDTH, EXPORT_HEIGHT);
+    context.drawImage(
+      image,
+      HORIZONTAL_PADDING,
+      VERTICAL_PADDING,
+      EXPORT_WIDTH - HORIZONTAL_PADDING * 2,
+      EXPORT_HEIGHT - VERTICAL_PADDING * 2,
+    );
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -103,4 +113,4 @@ export async function exportMp4(preview, settings, onProgress) {
   download(output.target.buffer);
 }
 
-export const exportSpec = `${EXPORT_WIDTH} × ${EXPORT_HEIGHT} px · ${FRAME_RATE} fps · ${DURATION_SECONDS} seconds`;
+export const exportSpec = `${EXPORT_WIDTH} × ${EXPORT_HEIGHT} px · ${FRAME_RATE} fps · ${DURATION_SECONDS} seconds · ${HORIZONTAL_PADDING}px horizontal / ${VERTICAL_PADDING}px vertical padding`;
