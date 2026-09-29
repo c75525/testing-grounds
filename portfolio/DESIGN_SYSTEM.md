@@ -16,7 +16,7 @@ An image-led portfolio of professionally demonstrative creative projects. It sup
 
 - Desktop content width: `min(100% - 48px, 1080px)`.
 - Header uses two columns: “Works by” and `Samuel Plattten`.
-- Projects form a vertically spaced two-column grid. On desktop, a large mockup frame and its centered Areal regular-italic title occupy the left column; the project description aligns in the right column. Project titles and descriptions use the same type size. Mobile stacks mockup, title, then description.
+- Projects form a vertically spaced two-column grid. On desktop, a large mockup frame and its centered Areal regular-italic title occupy the left column; the project description aligns in the right column. Project titles and descriptions use the same type size. Each title links to its live site. Mobile stacks mockup, title, then description.
 - Standard mockup frame ratio is `16:9`; the S.A.I.A. frame uses its native `1.678:1` ratio.
 
 ## Project slideshows
