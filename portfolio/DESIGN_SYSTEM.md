@@ -14,8 +14,8 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 ## Desktop grid and spacing
 
-- Outer page padding: `clamp(24px, 4vw, 72px)` on all four sides.
-- Structural grid: left directory = **10%** of page width; the remaining 90% divides exactly into middle content = **80%** and right context = **10%**.
+- The page is a centered five-column composition: **flexible outer gutter / 10% directory / 80% main content / 10% context / flexible outer gutter**.
+- The inner three-column content region has a maximum width of `1600px`, a minimum `24px` gutter on each side, and `clamp(24px, 4vw, 72px)` vertical padding. On screens wider than 1648px, the unused viewport width becomes equal left/right outer gutters.
 - The middle and context columns share no artificial gutter; the right column receives internal left padding of `clamp(14px, 1.5vw, 28px)`.
 - Middle-column case-study content is centered and capped at `720px`; project titles sit 20px below their frame.
 - Page rows are separated by `clamp(96px, 11vw, 180px)`.

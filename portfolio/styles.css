@@ -10,7 +10,9 @@
   --ink: #e1ede8;
   --accent: #fffbcf;
   --background: #000;
-  --outer-padding: clamp(24px, 4vw, 72px);
+  --vertical-padding: clamp(24px, 4vw, 72px);
+  --shell-max-width: 1600px;
+  --shell-min-gutter: 24px;
   --copy-size: clamp(0.875rem, 1.05vw, 1.125rem);
   color: var(--ink);
   background: var(--background);
@@ -33,15 +35,17 @@ button,
 a { font: inherit; }
 
 .portfolio-shell {
+  width: min(calc(100% - var(--shell-min-gutter) * 2), var(--shell-max-width));
   min-height: 100vh;
   display: grid;
   grid-template-columns: 10% 90%;
-  padding: var(--outer-padding);
+  margin: 0 auto;
+  padding: var(--vertical-padding) 0;
 }
 
 .directory {
   position: sticky;
-  top: var(--outer-padding);
+  top: var(--vertical-padding);
   align-self: start;
   min-width: 0;
 }
@@ -331,7 +335,8 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
   .portfolio-shell {
     grid-template-columns: 1fr;
     gap: 56px;
-    padding: 24px;
+    width: calc(100% - 48px);
+    padding: 24px 0;
   }
 
   .directory { position: static; }
