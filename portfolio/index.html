@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Samuel Plattten — Portfolio</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261005-2043">
 </head>
 <body>
   <div class="portfolio-shell">
@@ -16,13 +16,9 @@
       <nav class="directory-nav" aria-label="Portfolio sections">
         <svg class="directory-lines" viewBox="0 0 120 130" aria-hidden="true">
           <path id="directory-trunk" pathLength="1" d="M20 0V101" />
-          <path id="branch-inhouse" pathLength="1" d="M20 48H48" />
-          <path id="branch-freelance" pathLength="1" d="M20 101H48" />
-          <path id="extension-inhouse" pathLength="1" d="M48 48H74" />
-          <path id="extension-freelance" pathLength="1" d="M48 101H74" />
         </svg>
-        <button class="directory-entry" type="button" data-section="inhouse" aria-controls="inhouse-page" aria-selected="false"><span>In‑house</span></button>
-        <button class="directory-entry" type="button" data-section="freelance" aria-controls="freelance-page" aria-selected="true"><span>Freelance</span></button>
+        <button class="directory-entry" type="button" data-section="inhouse" aria-controls="inhouse-page" aria-selected="false"><span class="directory-label"><span class="directory-label-text">In‑house</span></span></button>
+        <button class="directory-entry" type="button" data-section="freelance" aria-controls="freelance-page" aria-selected="true"><span class="directory-label"><span class="directory-label-text">Freelance</span></span></button>
       </nav>
     </aside>
 
@@ -101,6 +97,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=20261005-2043"></script>
 </body>
 </html>

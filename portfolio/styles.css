@@ -97,7 +97,7 @@ h1 {
 
 .directory-entry {
   position: absolute;
-  left: 62px;
+  left: 20px;
   z-index: 1;
   padding: 0;
   color: var(--ink);
@@ -109,7 +109,24 @@ h1 {
   transform: translateY(-50%);
 }
 
-.directory-entry span {
+.directory-entry::before {
+  width: calc(42px + var(--directory-offset, 0px));
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  content: '';
+  background: currentColor;
+  transform: translateY(-50%) scaleX(0);
+  transform-origin: left center;
+}
+
+.directory-label {
+  display: block;
+  margin-left: 42px;
+}
+
+.directory-label-text {
   display: block;
   transform: translateX(var(--directory-offset, 0px));
 }
@@ -320,15 +337,12 @@ h1 {
 body.is-loaded .load-identity { animation: fade-up 700ms ease-in forwards; }
 body.is-loaded .directory-entry[data-section="inhouse"] { animation: fade-left 500ms ease-in 950ms forwards; }
 body.is-loaded .directory-entry[data-section="freelance"] { animation: fade-left 500ms ease-in 1100ms forwards; }
+body.is-loaded .directory-entry[data-section="inhouse"] .directory-label { animation: label-left 500ms ease-in 950ms both; }
+body.is-loaded .directory-entry[data-section="freelance"] .directory-label { animation: label-left 500ms ease-in 1100ms both; }
 
 body.is-loaded #directory-trunk { animation: draw-line 700ms ease-in 450ms forwards; }
-body.is-loaded #branch-inhouse { animation: draw-line 360ms ease-in 900ms forwards; }
-body.is-loaded #branch-freelance { animation: draw-line 360ms ease-in 1050ms forwards; }
-body.is-loaded #extension-inhouse,
-body.is-loaded #extension-freelance { animation: draw-line 360ms ease-in 1250ms forwards; }
-
-body[data-active-section="inhouse"] #extension-inhouse,
-body[data-active-section="freelance"] #extension-freelance { stroke: var(--accent); }
+body.is-loaded .directory-entry[data-section="inhouse"]::before { animation: draw-branch 360ms ease-in 900ms forwards; }
+body.is-loaded .directory-entry[data-section="freelance"]::before { animation: draw-branch 360ms ease-in 1050ms forwards; }
 
 body.is-loaded .content-page.is-active .load-item { animation: fade-up 600ms ease-in forwards; }
 body.is-loaded .content-page.is-active .case-block:nth-of-type(1) .load-item { animation-delay: 1350ms; }
@@ -343,11 +357,21 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
 }
 
 @keyframes fade-left {
-  from { opacity: 0; left: 48px; }
-  to { opacity: 1; left: 62px; }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes label-left {
+  from { transform: translateX(-14px); }
+  to { transform: translateX(0); }
 }
 
 @keyframes draw-line { to { stroke-dashoffset: 0; } }
+
+@keyframes draw-branch {
+  from { transform: translateY(-50%) scaleX(0); }
+  to { transform: translateY(-50%) scaleX(1); }
+}
 
 @media (max-width: 760px) {
   .portfolio-shell {
