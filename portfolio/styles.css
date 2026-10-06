@@ -106,10 +106,11 @@ h1 {
   cursor: pointer;
   line-height: 1;
   text-align: left;
+  translate: var(--directory-offset, 0px) -50%;
 }
 
-.directory-entry[data-section="inhouse"] { top: 42px; }
-.directory-entry[data-section="freelance"] { top: 98px; }
+.directory-entry[data-section="inhouse"] { top: 48px; }
+.directory-entry[data-section="freelance"] { top: 104px; }
 
 .directory-entry[aria-selected="true"] { color: var(--accent); }
 .directory-entry:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }

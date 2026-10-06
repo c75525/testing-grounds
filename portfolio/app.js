@@ -1,9 +1,47 @@
+import * as spring from './vendor/pmndrs-math-spring.js';
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const SLIDE_INTERVAL = 10_000;
 const STROKE_SPEED = 29;
 const directoryEntries = [...document.querySelectorAll('.directory-entry')];
 const pages = [...document.querySelectorAll('.content-page')];
 let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'freelance');
+const DIRECTORY_OFFSET = 12;
+const directorySprings = directoryEntries.map((_, index) => spring.create(index === selectedIndex ? DIRECTORY_OFFSET : 0));
+let directorySpringFrame;
+let previousSpringTime;
+
+function animateDirectorySelection() {
+  if (reducedMotion.matches) {
+    directoryEntries.forEach((entry, index) => {
+      const value = index === selectedIndex ? DIRECTORY_OFFSET : 0;
+      directorySprings[index].value = value;
+      directorySprings[index].velocity = 0;
+      entry.style.setProperty('--directory-offset', `${value}px`);
+    });
+    return;
+  }
+  if (directorySpringFrame) return;
+  previousSpringTime = undefined;
+  function tick(time) {
+    const delta = previousSpringTime === undefined ? 0 : Math.min((time - previousSpringTime) / 1000, 0.05);
+    previousSpringTime = time;
+    let settled = true;
+    directorySprings.forEach((state, index) => {
+      const target = index === selectedIndex ? DIRECTORY_OFFSET : 0;
+      spring.update(state, target, 0.22, 0.58, delta);
+      directoryEntries[index].style.setProperty('--directory-offset', `${state.value}px`);
+      if (Math.abs(state.value - target) > 0.01 || Math.abs(state.velocity) > 0.01) settled = false;
+    });
+    if (settled) {
+      directorySpringFrame = undefined;
+      previousSpringTime = undefined;
+    } else {
+      directorySpringFrame = requestAnimationFrame(tick);
+    }
+  }
+  directorySpringFrame = requestAnimationFrame(tick);
+}
 
 function bindLastTwoWords(element) {
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
@@ -22,6 +60,7 @@ function setDirectorySelection(index) {
     entry.tabIndex = selected ? 0 : -1;
   });
   document.body.dataset.activeSection = directoryEntries[selectedIndex].dataset.section;
+  animateDirectorySelection();
 }
 
 function activateSection(section, shouldScroll = true) {
@@ -33,8 +72,10 @@ function activateSection(section, shouldScroll = true) {
     if (active) {
       void page.offsetWidth;
       page.classList.add('is-active');
-      if (shouldScroll) page.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
     }
+  });
+  if (shouldScroll) requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
   });
 }
 

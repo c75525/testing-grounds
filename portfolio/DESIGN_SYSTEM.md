@@ -25,7 +25,8 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 - Directory labels: In-house and Freelance only. Project names remain in page content.
 - Freelance is the default active page.
 - Clicking a directory title selects and scrolls to its page.
-- Arrow Up/Down moves directory selection. Enter activates and scrolls to the highlighted section.
+- Arrow Up/Down moves directory selection. Enter or click activates the highlighted section and returns the document to the top of the page.
+- When selection changes, the active label springs `12px` to the right while the former label springs back to its resting position. Labels are vertically centered on their exact branch coordinates. The motion uses a locally bundled `pmndrs/math` under-damped scalar spring (`0.22s` smooth time, `0.58` damping ratio); reduced-motion users receive the final offsets immediately.
 - The identity fades upward first. Then the directory trunk draws down, branches draw outward, and section labels fade from the left. Active directory branch and title use `#fffbcf`.
 - Active-page elements then reveal top-to-bottom with upward fade-in. All prescribed transitions use `ease-in` timing.
 
