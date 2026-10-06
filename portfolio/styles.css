@@ -115,7 +115,7 @@ h1 {
 }
 
 .directory-entry[data-section="inhouse"] { top: 48px; }
-.directory-entry[data-section="freelance"] { top: 104px; }
+.directory-entry[data-section="freelance"] { top: 101px; }
 
 .directory-entry[aria-selected="true"] { color: var(--accent); }
 .directory-entry:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
