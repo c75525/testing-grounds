@@ -109,21 +109,33 @@ h1 {
   transform: translateY(-50%);
 }
 
-.directory-entry::before {
-  width: calc(42px + var(--directory-offset, 0px));
+.directory-entry::before,
+.directory-entry::after {
   height: 1px;
   position: absolute;
   top: 50%;
-  left: 0;
   content: '';
-  background: currentColor;
   transform: translateY(-50%) scaleX(0);
   transform-origin: left center;
 }
 
+.directory-entry::before {
+  left: 0;
+  width: 28px;
+  background: var(--ink);
+}
+
+.directory-entry::after {
+  left: 28px;
+  width: calc(14px + var(--directory-offset, 0px));
+  background: var(--ink);
+}
+
+.directory-entry[aria-selected="true"]::after { background: var(--accent); }
+
 .directory-label {
   display: block;
-  margin-left: 42px;
+  margin-left: 50px;
 }
 
 .directory-label-text {
@@ -329,20 +341,19 @@ h1 {
 .placeholder-paper span:nth-child(3) { transform: translate(-2%, 3%) rotate(-4deg); background: #ebe9e6; }
 
 .load-identity,
-.directory-entry,
+.directory-label,
 .content-page.is-active .load-item {
   opacity: 0;
 }
 
 body.is-loaded .load-identity { animation: fade-up 700ms ease-in forwards; }
-body.is-loaded .directory-entry[data-section="inhouse"] { animation: fade-left 500ms ease-in 950ms forwards; }
-body.is-loaded .directory-entry[data-section="freelance"] { animation: fade-left 500ms ease-in 1100ms forwards; }
 body.is-loaded .directory-entry[data-section="inhouse"] .directory-label { animation: label-left 500ms ease-in 950ms both; }
 body.is-loaded .directory-entry[data-section="freelance"] .directory-label { animation: label-left 500ms ease-in 1100ms both; }
 
 body.is-loaded #directory-trunk { animation: draw-line 700ms ease-in 450ms forwards; }
 body.is-loaded .directory-entry[data-section="inhouse"]::before { animation: draw-branch 360ms ease-in 900ms forwards; }
 body.is-loaded .directory-entry[data-section="freelance"]::before { animation: draw-branch 360ms ease-in 1050ms forwards; }
+body.is-loaded .directory-entry::after { animation: draw-branch 360ms ease-in 1250ms forwards; }
 
 body.is-loaded .content-page.is-active .load-item { animation: fade-up 600ms ease-in forwards; }
 body.is-loaded .content-page.is-active .case-block:nth-of-type(1) .load-item { animation-delay: 1350ms; }
@@ -356,14 +367,9 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fade-left {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 @keyframes label-left {
-  from { transform: translateX(-14px); }
-  to { transform: translateX(0); }
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes draw-line { to { stroke-dashoffset: 0; } }
@@ -416,7 +422,9 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
 @media (prefers-reduced-motion: reduce) {
   .slide { transition: none; }
   .load-identity,
-  .directory-entry,
+  .directory-label,
   .content-page.is-active .load-item { opacity: 1; animation: none !important; }
   .directory-lines path { stroke-dashoffset: 0; animation: none !important; }
+  .directory-entry::before,
+  .directory-entry::after { transform: translateY(-50%) scaleX(1); animation: none !important; }
 }
