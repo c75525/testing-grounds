@@ -3,8 +3,51 @@ import * as spring from './vendor/pmndrs-math-spring.js';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const SLIDE_INTERVAL = 10_000;
 const STROKE_SPEED = 29;
+const TYPEWRITER_INTERVAL = 16;
+const SOCIAL_CAPTIONS = {
+  Da3dQmmEu52: `Take a look at this vintage pamphlet on cryonics from the early days of Alcor. Notice those two stars hanging above the tree?
+
+Alcor founders Linda and Fred Chamberlain believed humanity would one day travel to the stars, and while searching star catalogs for a fitting name, they chose Alcor, a dim companion star to the bright Mizar star, which was long used as a test of keen eyesight. The idea was that if you can see Alcor's purpose, you have excellent "vision."
+
+Do you have the "vision" to see your future among the stars? ⭐`,
+  DWFQPh3Aa7R: `Alcor CEO James Arrowood will be travelling through Europe over the coming weeks and wants to sit down for dinner with members in a few cities along the way.
+
+This trip is part of something bigger. Alcor is actively laying the groundwork for a local European presence, including a facility on the continent, and hearing directly from members is a real part of that process. If you've had thoughts on what Alcor's future in Europe could look like, come share them over a meal.
+
+Here's where he's currently planning to be:
+
+London — Friday - Saturday, March 20th/21st
+Frankfurt — Monday, March 23rd
+Cologne — Tuesday, March 24th
+Stockholm — Wednesday - Thursday, March 25th/26th`,
+  DX99IZNj2Z4: `The latest Alcor Newsletter is out. 🗞️
+
+It includes several important developments, including an update on Mike Perry.
+
+Visit the Linktree in our bio to read the full issue. 🔗`,
+  DYVTq2DEr3b: `Behind The Scenes:
+
+Our Membership Director Diane, hand-sewing Alcor patches onto the bags our team is bringing to Vitalist Bay. A little personal touch to see us off. 🪡
+
+See you all in Berkeley!`,
+  DZD7bXGj0Ha: `Behind The Scenes:
+
+Wonjin using a repurposed machine learning model (built by Mohammed) to calculate the area of brain slices by pixel density. Pretty cool, right? 🧠
+
+The catch? Photographing each slice by hand was a bottleneck. So Mohammed modeled and 3D-printed a custom iPhone mount to streamline the process. 📲
+
+Never a dull moment when you've got this level of versatility on the team.`,
+};
 const directoryEntries = [...document.querySelectorAll('.directory-entry')];
 const pages = [...document.querySelectorAll('.content-page')];
+const inhousePage = document.querySelector('#inhouse-page');
+const alcorIntroMedia = document.querySelector('.alcor-logo-stage');
+const alcorIntroContext = document.querySelector('.alcor-intro-row > .case-context');
+const socialStack = document.querySelector('.photo-stack');
+const socialCaptionCopy = document.querySelector('.social-caption-copy');
+const socialCaptionLive = document.querySelector('.social-caption-live');
+const socialConnector = document.querySelector('.social-caption-connector');
+const socialConnectorPath = socialConnector?.querySelector('path');
 let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'freelance');
 let hoveredIndex = -1;
 const DIRECTORY_OFFSET = 12;
@@ -12,6 +55,11 @@ const directorySprings = directoryEntries.map((_, index) => spring.create(index 
 let directorySpringFrame;
 let previousSpringTime;
 let alcorAnimationTimeout;
+let typewriterFrame;
+let connectorFrame;
+let connectorDrawFrame;
+let socialCaptionAnchor;
+let socialCaptionStarted = false;
 
 function animateDirectorySelection() {
   if (reducedMotion.matches) {
@@ -54,6 +102,140 @@ function bindLastTwoWords(element) {
   lastTextNode.textContent = lastTextNode.textContent.replace(/(\S+)\s+(\S+)(\s*)$/u, '$1\u00a0$2$3');
 }
 
+function syncAlcorIntroRow() {
+  if (!inhousePage || !alcorIntroMedia || !alcorIntroContext || inhousePage.hidden || innerWidth <= 760) {
+    inhousePage?.classList.remove('has-compact-intro');
+    return;
+  }
+  const mediaHeight = alcorIntroMedia.getBoundingClientRect().height;
+  const contextHeight = alcorIntroContext.getBoundingClientRect().height;
+  const rowGap = Number.parseFloat(getComputedStyle(inhousePage).rowGap);
+  const overhang = Math.max(0, contextHeight - mediaHeight);
+  const canPreserveGap = overhang <= Math.max(0, rowGap - 24);
+  inhousePage.classList.toggle('has-compact-intro', canPreserveGap);
+  if (canPreserveGap) inhousePage.style.setProperty('--alcor-intro-row-height', `${mediaHeight}px`);
+}
+
+function captionGraphemes(text) {
+  if ('Segmenter' in Intl) {
+    return [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(text)].map(item => item.segment);
+  }
+  return Array.from(text);
+}
+
+function transformedElementPoint(element, x, y) {
+  const parent = element.offsetParent;
+  if (!parent) return { x: 0, y: 0 };
+  const parentRect = parent.getBoundingClientRect();
+  const style = getComputedStyle(element);
+  const matrix = new DOMMatrix(style.transform === 'none' ? undefined : style.transform);
+  const [originX, originY] = style.transformOrigin.split(' ').map(Number.parseFloat);
+  const localX = x - originX;
+  const localY = y - originY;
+  return {
+    x: parentRect.left + parent.clientLeft + element.offsetLeft + originX + matrix.a * localX + matrix.c * localY + matrix.e,
+    y: parentRect.top + parent.clientTop + element.offsetTop + originY + matrix.b * localX + matrix.d * localY + matrix.f,
+  };
+}
+
+function updateSocialConnector() {
+  const frontPhoto = socialStack?.querySelector(':scope > .stack-photo');
+  if (!socialCaptionStarted || !frontPhoto || !socialCaptionCopy || !socialConnector || !socialConnectorPath || innerWidth <= 760) return;
+  const overlayRect = socialConnector.getBoundingClientRect();
+  const captionRect = socialCaptionCopy.getBoundingClientRect();
+  const lineHeight = Number.parseFloat(getComputedStyle(socialCaptionCopy).lineHeight);
+  const cardPoint = transformedElementPoint(frontPhoto, frontPhoto.offsetWidth - 8, frontPhoto.offsetHeight - 8);
+  const startX = cardPoint.x - overlayRect.left;
+  const startY = cardPoint.y - overlayRect.top;
+  if (!socialCaptionAnchor) {
+    socialCaptionAnchor = {
+      x: captionRect.left - overlayRect.left - 16,
+      y: captionRect.top - overlayRect.top + lineHeight * 1.5,
+    };
+  }
+  socialConnectorPath.setAttribute('d', `M${startX} ${startY}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
+}
+
+function animateSocialConnector() {
+  cancelAnimationFrame(connectorDrawFrame);
+  updateSocialConnector();
+  if (!socialConnectorPath || reducedMotion.matches || !socialCaptionAnchor) return;
+  const startedAt = performance.now();
+  function draw(time) {
+    updateSocialConnector();
+    const target = socialConnectorPath.getPointAtLength(0);
+    const progress = Math.min(1, (time - startedAt) / 360);
+    const easedProgress = progress * progress;
+    const movingX = socialCaptionAnchor.x + (target.x - socialCaptionAnchor.x) * easedProgress;
+    const movingY = socialCaptionAnchor.y + (target.y - socialCaptionAnchor.y) * easedProgress;
+    socialConnectorPath.setAttribute('d', `M${movingX} ${movingY}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
+    if (progress < 1) connectorDrawFrame = requestAnimationFrame(draw);
+    else updateSocialConnector();
+  }
+  socialConnectorPath.setAttribute('d', `M${socialCaptionAnchor.x} ${socialCaptionAnchor.y}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
+  connectorDrawFrame = requestAnimationFrame(draw);
+}
+
+function trackSocialConnector(duration = 500) {
+  cancelAnimationFrame(connectorFrame);
+  const endTime = performance.now() + duration;
+  function track(time) {
+    updateSocialConnector();
+    if (time < endTime) connectorFrame = requestAnimationFrame(track);
+  }
+  connectorFrame = requestAnimationFrame(track);
+}
+
+function clearSocialCaption() {
+  cancelAnimationFrame(typewriterFrame);
+  cancelAnimationFrame(connectorDrawFrame);
+  socialCaptionAnchor = undefined;
+  if (socialCaptionCopy) {
+    socialCaptionCopy.textContent = '';
+    socialCaptionCopy.style.removeProperty('min-height');
+  }
+  if (socialCaptionLive) socialCaptionLive.textContent = '';
+  socialConnectorPath?.removeAttribute('d');
+}
+
+function renderFrontSocialCaption() {
+  const frontPhoto = socialStack?.querySelector(':scope > .stack-photo');
+  const caption = frontPhoto ? SOCIAL_CAPTIONS[frontPhoto.dataset.postId] : undefined;
+  if (!caption || !socialCaptionCopy || !socialCaptionLive) return;
+  cancelAnimationFrame(typewriterFrame);
+  const fullCaption = `“${caption}”`;
+  socialCaptionLive.textContent = fullCaption;
+  socialCaptionCopy.textContent = fullCaption;
+  socialCaptionCopy.style.minHeight = `${socialCaptionCopy.getBoundingClientRect().height}px`;
+  socialCaptionAnchor = undefined;
+  if (reducedMotion.matches) {
+    socialCaptionCopy.textContent = fullCaption;
+    updateSocialConnector();
+    return;
+  }
+  const graphemes = captionGraphemes(fullCaption);
+  let visibleCount = 0;
+  let previousTime;
+  socialCaptionCopy.textContent = '';
+  function type(time) {
+    if (previousTime === undefined || time - previousTime >= TYPEWRITER_INTERVAL) {
+      visibleCount += 1;
+      previousTime = time;
+      socialCaptionCopy.textContent = graphemes.slice(0, visibleCount).join('');
+    }
+    if (visibleCount < graphemes.length) typewriterFrame = requestAnimationFrame(type);
+  }
+  typewriterFrame = requestAnimationFrame(type);
+  updateSocialConnector();
+}
+
+function startSocialPresentation() {
+  if (socialCaptionStarted || document.body.dataset.activeSection !== 'inhouse') return;
+  socialCaptionStarted = true;
+  renderFrontSocialCaption();
+  animateSocialConnector();
+}
+
 function setDirectorySelection(index) {
   selectedIndex = (index + directoryEntries.length) % directoryEntries.length;
   directoryEntries.forEach((entry, entryIndex) => {
@@ -76,7 +258,12 @@ function activateSection(section, shouldScroll = true) {
       page.classList.add('is-active');
     }
   });
-  if (section === 'inhouse') playAlcorLogoAnimation();
+  socialCaptionStarted = false;
+  clearSocialCaption();
+  if (section === 'inhouse') {
+    requestAnimationFrame(syncAlcorIntroRow);
+    playAlcorLogoAnimation();
+  }
   if (shouldScroll) requestAnimationFrame(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
   });
@@ -90,7 +277,7 @@ function playAlcorLogoAnimation() {
   if (reducedMotion.matches) return;
   void logo.getBoundingClientRect();
   requestAnimationFrame(() => logo.classList.add('animate-draw'));
-  alcorAnimationTimeout = setTimeout(() => logo.classList.remove('animate-draw'), 3500);
+  alcorAnimationTimeout = setTimeout(() => logo.classList.remove('animate-draw'), 4800);
 }
 
 function startSlideshow(slideshow) {
@@ -140,23 +327,42 @@ async function mountC75525StrokeAnimation() {
 
 document.querySelectorAll('.photo-stack').forEach(stack => {
   let shuffling = false;
+  stack.addEventListener('pointerenter', () => trackSocialConnector());
+  stack.addEventListener('pointerleave', () => trackSocialConnector());
+  stack.addEventListener('transitionend', event => {
+    if (event.propertyName === 'transform') updateSocialConnector();
+  });
   stack.addEventListener('click', () => {
     if (shuffling) return;
     const frontPhoto = stack.querySelector(':scope > .stack-photo');
     if (!frontPhoto) return;
+    socialCaptionStarted = true;
+    clearSocialCaption();
     if (reducedMotion.matches) {
       stack.append(frontPhoto);
+      renderFrontSocialCaption();
+      animateSocialConnector();
       return;
     }
     shuffling = true;
     stack.classList.add('is-shuffling');
+    trackSocialConnector(320);
     setTimeout(() => {
       stack.append(frontPhoto);
       stack.classList.remove('is-shuffling');
       shuffling = false;
+      renderFrontSocialCaption();
+      animateSocialConnector();
     }, 260);
   });
 });
+
+if ('IntersectionObserver' in window && socialStack) {
+  const socialPresentationObserver = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) startSocialPresentation();
+  }, { threshold: 0.2 });
+  socialPresentationObserver.observe(socialStack);
+}
 
 directoryEntries.forEach((entry, index) => {
   entry.addEventListener('pointerenter', () => {
@@ -182,7 +388,17 @@ directoryEntries.forEach((entry, index) => {
   });
 });
 
-document.querySelectorAll('.case-context p, .inhouse-heading p').forEach(bindLastTwoWords);
+document.querySelectorAll('.case-context p, .inhouse-heading p, .project-subtitle').forEach(bindLastTwoWords);
+if ('ResizeObserver' in window && alcorIntroMedia && alcorIntroContext) {
+  const alcorLayoutObserver = new ResizeObserver(() => {
+    syncAlcorIntroRow();
+    updateSocialConnector();
+  });
+  alcorLayoutObserver.observe(alcorIntroMedia);
+  alcorLayoutObserver.observe(alcorIntroContext);
+  if (socialStack) alcorLayoutObserver.observe(socialStack);
+  if (socialCaptionCopy) alcorLayoutObserver.observe(socialCaptionCopy);
+}
 setDirectorySelection(selectedIndex);
 document.querySelectorAll('.slideshow').forEach(startSlideshow);
 mountC75525StrokeAnimation();

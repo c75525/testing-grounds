@@ -32,17 +32,22 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 ## Content
 
-- Freelance contains c75525.org, samuelplatten.com, and saia.center. Each project title links to its live site.
+- Freelance contains c75525.org, samuelplatten.com, and saia.center. Each project title links to its live site. URL titles use italic Areal and carry a regular, non-italic subtitle describing the engagement:
+  - c75525.org — Creative Direction, Interaction Design, & Web Development
+  - samuelplatten.com — Digital Art Direction, Interface Design, & Web Development
+  - saia.center — Brand Identity, Digital Design, & Web Development
 - Project mockups cross-fade every 10 seconds; reduced-motion users receive the first image only.
 - c75525.org’s third slide layers the supplied `c75525_stroke.svg` over its laptop-screen background using the saved Stroke Dotter settings: `32px` dash, `25px` gap, `29px/s`, forward direction, and a `0.75px` white round-capped stroke.
-- The first In-house media box contains the Mizar-session Alcor SVG at `86%` width. Its white paths draw and fill over the transparent black stage whenever In-house becomes active, then remain static until reload or a subsequent return to In-house. Reduced-motion users receive the completed white mark immediately.
+- The first In-house media box contains the Mizar-session Alcor SVG at `86%` width. Its white paths begin a staggered stroke draw when the media reveal becomes visible; the fill sequence starts only after every stroke has completed. A union clip of the four filled logo shapes constrains the centered SVG strokes to the interior geometry, keeping the exterior silhouette fixed when the stroke state ends. It replays whenever In-house becomes active, then remains static until reload or a subsequent return to In-house. A dedicated `1.25` SVG-unit internal bridge follows the shared curve between the lower A leg and swoosh, covering their anti-aliasing seam without thickening the exterior silhouette or changing the media or logo dimensions. Reduced-motion users receive the completed white mark immediately.
+- On desktop, the first In-house grid row follows the logo media height when the taller Context/Approach copy can safely overflow into the standard row gap while retaining at least `24px` before the next row. This keeps the visual gap from the logo to the iPhone mockup consistent with subsequent media gaps; narrower cases fall back to natural grid sizing.
 - The second In-house box cross-fades the supplied identity overview, color, and typography mockups at the standard 10-second interval.
-- The third In-house box is a five-image stack using the supplied Instagram posts `DWFQPh3Aa7R`, `Da3dQmmEu52`, `DX99IZNj2Z4`, `DYVTq2DEr3b`, and `DZD7bXGj0Ha`. Hover and keyboard focus spread the stack; click, Enter, or Space sends the front image to the back. Reduced-motion mode reorders immediately.
+- The third In-house box is a five-image stack using the supplied Instagram posts in this initial order: `Da3dQmmEu52`, `DWFQPh3Aa7R`, `DX99IZNj2Z4`, `DYVTq2DEr3b`, and `DZD7bXGj0Ha`. Hover and keyboard focus spread the stack; click, Enter, or Space sends the front image to the back.
+- Each stack image is keyed to its supplied post caption. The active caption appears beside the stack in synthesized Areal italic, wrapped in typographic quotation marks, and types one grapheme at a time at approximately one character per animation frame. A one-pixel SVG connector begins `8px` inside the transformed front image’s true lower-right corner, renders above that card, and ends beside the caption. When the stack first enters the viewport—and after every shuffle—the caption-side endpoint stays fixed while the card-side endpoint extends outward over `360ms ease-in`, matching the directory branch timing. The caption-side endpoint remains fixed; only the card-side endpoint tracks spread and shuffle motion on desktop. The connector is omitted when the layout stacks on mobile. The initial typewriter and connector wait until the stack enters the viewport. The full caption is announced once through a separate live region rather than character by character. Reduced-motion mode reorders and renders the complete caption immediately.
 - The fourth In-house box cross-fades the three supplied Tour Manager mockups at the standard 10-second interval.
 
 ## Typesetting
 
-- Running copy uses Areal with kerning, common ligatures, and contextual alternates enabled.
+- Running copy uses Areal with kerning, common ligatures, and contextual alternates enabled. Social captions append Apple Color Emoji, Segoe UI Emoji, and Noto Color Emoji fallbacks so post emoji—including 🪡—render when Areal lacks the glyph.
 - Prose targets a maximum measure of `min(62ch, 640px)`, `1.55` line height, `text-wrap: pretty`, and no automatic hyphenation. The 25% context track provides approximately 390px at the 1600px shell maximum, approaching the lower bound of the preferred 45–75-character range at the approved type size.
 - Longer descriptions are divided into logical paragraphs rather than forced into a single dense block.
 - Headings use `text-wrap: balance`.
@@ -51,6 +56,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 ## Responsive behavior
 
 - At 760px and below, the layout stacks: directory, project media, title, then context.
+- The mobile directory trunk is centered on the page. In-house branches right; Freelance branches left. The Freelance spring reverses horizontally so both selected labels move outward from the trunk, while both branches retain the `8px` label gap.
 - Header and content text center-align on mobile.
 - `prefers-reduced-motion: reduce` removes motion and keeps the initial slide visible.
 

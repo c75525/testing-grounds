@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Samuel Plattten — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261006-0000">
+  <link rel="stylesheet" href="styles.css?v=20261006-0101">
 </head>
 <body>
   <div class="portfolio-shell">
@@ -35,6 +35,7 @@
               </div>
             </div>
             <h2><a href="https://c75525.org/">c75525.org</a></h2>
+            <p class="project-subtitle">Creative Direction, Interaction Design, &amp; Web Development</p>
           </article>
           <aside class="case-context load-item">
             <p>“c75525” is a blog created as an experiment in navigable, spatially plotted digital content. The site map, or page structure, is reflected in a dynamic diagram of a tube.</p>
@@ -49,6 +50,7 @@
               <img class="slide is-active" src="media/processed/samuelplatten.com-960.webp" srcset="media/processed/samuelplatten.com-960.webp 960w, media/processed/samuelplatten.com-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="samuelplatten.com website mockup">
             </div>
             <h2><a href="https://samuelplatten.com/">samuelplatten.com</a></h2>
+            <p class="project-subtitle">Digital Art Direction, Interface Design, &amp; Web Development</p>
           </article>
           <aside class="case-context load-item">
             <p>An artistic portfolio website featuring a still, resting interface sporting a digital sculpture.</p>
@@ -64,6 +66,7 @@
               <img class="slide" src="media/processed/saia-poster-2-960.webp" srcset="media/processed/saia-poster-2-960.webp 960w, media/processed/saia-poster-2-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="S.A.I.A. poster mockup two">
             </div>
             <h2><a href="https://saia.center/">saia.center</a></h2>
+            <p class="project-subtitle">Brand Identity, Digital Design, &amp; Web Development</p>
           </article>
           <aside class="case-context load-item">
             <p>Social Anthropology Internet Archaeology (S.A.I.A.) is a 501(c)(3) nonprofit located in Phoenix, AZ.</p>
@@ -78,22 +81,33 @@
           <h2>Alcor Life Extension Foundation</h2>
           <p>Communications, Brand Systems, &amp; Digital Experiences</p>
         </div>
-        <div class="case-block">
+        <div class="case-block alcor-intro-row">
           <article class="alcor-case load-item">
             <div class="alcor-media alcor-logo-stage" aria-label="Animated Alcor logomark">
               <svg id="portfolio-alcor-logo" viewBox="0 0 571.99 289.33" role="img" aria-label="Alcor logomark drawing into view">
-                <g class="alcor-logo-part">
-                  <path class="alcor-logo-path" data-logo-order="1" d="M143.48,154.57l23.46-40.75,15.38,26.79c18.86-5.87,38.01-10.74,57.39-14.59L166.93,0l-83.54,144.74-39.96,69.29c29.91-25.07,63.7-45.09,100.04-59.29"/>
-                  <path class="alcor-logo-path" data-logo-order="3" d="M219.88,205.3l48.51,84.02h65.79l-71.02-122.87c-21.09,6.5-53.74,20.76-53.74,20.76l10.46,18.08Z"/>
+                <defs>
+                  <clipPath id="alcor-logo-interior-clip">
+                    <use href="#alcor-shape-upper-a"/>
+                    <use href="#alcor-shape-lower-a"/>
+                    <use href="#alcor-shape-swoosh"/>
+                    <use href="#alcor-shape-star"/>
+                  </clipPath>
+                </defs>
+                <g clip-path="url(#alcor-logo-interior-clip)">
+                  <g class="alcor-logo-part">
+                    <path id="alcor-shape-upper-a" class="alcor-logo-path" data-logo-order="1" d="M143.48,154.57l23.46-40.75,15.38,26.79c18.86-5.87,38.01-10.74,57.39-14.59L166.93,0l-83.54,144.74-39.96,69.29c29.91-25.07,63.7-45.09,100.04-59.29"/>
+                    <path id="alcor-shape-lower-a" class="alcor-logo-path" data-logo-order="3" d="M219.88,205.3l48.51,84.02h65.79l-71.02-122.87c-21.09,6.5-53.74,20.76-53.74,20.76l10.46,18.08Z"/>
+                  </g>
+                  <path id="alcor-shape-swoosh" class="alcor-logo-path" data-logo-order="4" d="M426.93,128.73C230.5,112.08,51.2,181.52,0,289.32h65.8c34.41-39.79,83.86-75.3,143.79-102.1,0,0,32.66-14.27,53.74-20.76,68.83-22.54,140.98-33.26,213.39-31.71-16.33-2.54-32.81-4.75-49.78-6.18v.16Z"/>
+                  <path id="alcor-shape-star" class="alcor-logo-path" data-logo-order="2" d="M537.75,102.72c6.03-3.96,16.17-4.43,34.24-4.91-18.08-.64-28.38-1.12-34.24-4.91,3.09-5.66,6.99-10.84,11.58-15.37-4.61,4.46-9.78,8.29-15.38,11.41-3.97-6.03-4.43-16.17-4.91-34.24-.64,18.08-1.12,28.38-4.91,34.24-5.63-3.08-10.8-6.92-15.38-11.41,4.46,4.6,8.3,9.77,11.42,15.37-6.03,3.96-16.17,4.44-34.24,4.91,18.07.64,28.37,1.12,34.24,4.91-3.08,5.63-6.92,10.8-11.42,15.38,4.66-4.44,9.82-8.33,15.38-11.58,3.97,6.03,4.43,16.17,4.91,34.24.64-18.07,1.12-28.37,4.91-34.24,5.66,3.09,10.84,6.99,15.38,11.58-4.45-4.66-8.33-9.82-11.58-15.38Z"/>
                 </g>
-                <path class="alcor-logo-path" data-logo-order="4" d="M426.93,128.73C230.5,112.08,51.2,181.52,0,289.32h65.8c34.41-39.79,83.86-75.3,143.79-102.1,0,0,32.66-14.27,53.74-20.76,68.83-22.54,140.98-33.26,213.39-31.71-16.33-2.54-32.81-4.75-49.78-6.18v.16Z"/>
-                <path class="alcor-logo-path" data-logo-order="2" d="M537.75,102.72c6.03-3.96,16.17-4.43,34.24-4.91-18.08-.64-28.38-1.12-34.24-4.91,3.09-5.66,6.99-10.84,11.58-15.37-4.61,4.46-9.78,8.29-15.38,11.41-3.97-6.03-4.43-16.17-4.91-34.24-.64,18.08-1.12,28.38-4.91,34.24-5.63-3.08-10.8-6.92-15.38-11.41,4.46,4.6,8.3,9.77,11.42,15.37-6.03,3.96-16.17,4.44-34.24,4.91,18.07.64,28.37,1.12,34.24,4.91-3.08,5.63-6.92,10.8-11.42,15.38,4.66-4.44,9.82-8.33,15.38-11.58,3.97,6.03,4.43,16.17,4.91,34.24.64-18.07,1.12-28.37,4.91-34.24,5.66,3.09,10.84,6.99,15.38,11.58-4.45-4.66-8.33-9.82-11.58-15.38Z"/>
+                <path class="alcor-seam-bridge" d="M263.16 166.45C242.07 172.95 209.42 187.21 209.42 187.21"/>
               </svg>
             </div>
           </article>
           <aside class="case-context load-item"><h3>Context</h3><p>Alcor Life Extension Foundation is a nonprofit cryonics organization founded in 1972.</p><p>Working across communications, design, and digital development, my role was to translate Alcor’s research, people, events, and history into clearer, more accessible experiences for both members and the public.</p><h3>Approach</h3><p>Because Alcor had decades of history and a wide range of existing materials, one of my first priorities was establishing a more cohesive visual system. I organized and centralized brand assets, developed guidelines for their use, and created a stronger foundation for future communications work.</p></aside>
         </div>
-        <div class="case-block">
+        <div class="case-block alcor-identity-row">
           <article class="alcor-case load-item">
             <div class="alcor-media slideshow" aria-label="Alcor identity system mockups">
               <img class="slide is-active" src="media/processed/alcor-on-hover-960.webp" srcset="media/processed/alcor-on-hover-960.webp 960w, media/processed/alcor-on-hover-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor identity shown across three mobile screens">
@@ -103,19 +117,23 @@
           </article>
           <aside class="case-context load-item"><p>I developed content pillars and calendars, designed social posts, and produced photography and infographics centered around the in‑house R&amp;D, community outreach, archival material, organizational history, and member stories.</p></aside>
         </div>
-        <div class="case-block">
+        <div class="case-block alcor-social-row">
+          <svg class="social-caption-connector" aria-hidden="true"><path/></svg>
           <article class="alcor-case load-item">
             <button class="alcor-media photo-stack" type="button" aria-label="Alcor identity screens. Click to move the front image to the back.">
-              <img class="stack-photo" src="media/processed/alcor-instagram-1-480.webp" srcset="media/processed/alcor-instagram-1-480.webp 480w, media/processed/alcor-instagram-1-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DWFQPh3Aa7R">
-              <img class="stack-photo" src="media/processed/alcor-instagram-2-480.webp" srcset="media/processed/alcor-instagram-2-480.webp 480w, media/processed/alcor-instagram-2-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post Da3dQmmEu52">
-              <img class="stack-photo" src="media/processed/alcor-instagram-3-480.webp" srcset="media/processed/alcor-instagram-3-480.webp 480w, media/processed/alcor-instagram-3-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DX99IZNj2Z4">
-              <img class="stack-photo" src="media/processed/alcor-instagram-4-480.webp" srcset="media/processed/alcor-instagram-4-480.webp 480w, media/processed/alcor-instagram-4-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DYVTq2DEr3b">
-              <img class="stack-photo" src="media/processed/alcor-instagram-5-480.webp" srcset="media/processed/alcor-instagram-5-480.webp 480w, media/processed/alcor-instagram-5-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DZD7bXGj0Ha">
+              <img class="stack-photo" data-post-id="Da3dQmmEu52" src="media/processed/alcor-instagram-2-480.webp" srcset="media/processed/alcor-instagram-2-480.webp 480w, media/processed/alcor-instagram-2-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post Da3dQmmEu52">
+              <img class="stack-photo" data-post-id="DWFQPh3Aa7R" src="media/processed/alcor-instagram-1-480.webp" srcset="media/processed/alcor-instagram-1-480.webp 480w, media/processed/alcor-instagram-1-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DWFQPh3Aa7R">
+              <img class="stack-photo" data-post-id="DX99IZNj2Z4" src="media/processed/alcor-instagram-3-480.webp" srcset="media/processed/alcor-instagram-3-480.webp 480w, media/processed/alcor-instagram-3-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DX99IZNj2Z4">
+              <img class="stack-photo" data-post-id="DYVTq2DEr3b" src="media/processed/alcor-instagram-4-480.webp" srcset="media/processed/alcor-instagram-4-480.webp 480w, media/processed/alcor-instagram-4-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DYVTq2DEr3b">
+              <img class="stack-photo" data-post-id="DZD7bXGj0Ha" src="media/processed/alcor-instagram-5-480.webp" srcset="media/processed/alcor-instagram-5-480.webp 480w, media/processed/alcor-instagram-5-960.webp 960w" sizes="(max-width: 760px) 42vw, 300px" width="960" height="1200" alt="Alcor Instagram post DZD7bXGj0Ha">
             </button>
           </article>
-          <aside class="case-context load-item"></aside>
+          <aside class="case-context social-caption load-item">
+            <p class="social-caption-copy" aria-hidden="true"></p>
+            <p class="visually-hidden social-caption-live" aria-live="polite"></p>
+          </aside>
         </div>
-        <div class="case-block">
+        <div class="case-block alcor-tour-row">
           <article class="alcor-case load-item">
             <div class="alcor-media slideshow" aria-label="Alcor Tour Manager interface">
               <img class="slide is-active" src="media/processed/alcor-tour-manager-1-960.webp" srcset="media/processed/alcor-tour-manager-1-960.webp 960w, media/processed/alcor-tour-manager-1-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor Tour Manager floor plan interface">
@@ -128,6 +146,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="app.js?v=20261006-0000"></script>
+  <script type="module" src="app.js?v=20261006-0101"></script>
 </body>
 </html>
