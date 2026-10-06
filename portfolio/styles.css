@@ -302,7 +302,7 @@ h1 {
   min-height: 34px;
   margin: 12px auto 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: clamp(8px, 1.5vw, 24px);
 }
 
@@ -320,7 +320,7 @@ h1 {
   border-radius: 0;
   cursor: pointer;
   transform: scaleY(var(--control-scale-y));
-  transform-origin: center;
+  transform-origin: center bottom;
   will-change: transform;
 }
 

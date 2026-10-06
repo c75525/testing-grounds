@@ -1,6 +1,7 @@
 import * as spring from './vendor/pmndrs-math-spring.js';
 
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const desktopGalleryInteraction = matchMedia('(min-width: 761px)');
 const SLIDE_INTERVAL = 10_000;
 const STROKE_SPEED = 29;
 const TYPEWRITER_INTERVAL = 16;
@@ -387,9 +388,17 @@ function startSlideshow(slideshow) {
   let previousControlSpringTime;
   const controlSprings = controlButtons.map(() => spring.create(1));
 
-  slideshow.classList.add('is-interactive');
-  slideshow.tabIndex = 0;
-  slideshow.setAttribute('role', 'button');
+  function syncFrameInteractionMode() {
+    const desktop = desktopGalleryInteraction.matches;
+    slideshow.classList.toggle('is-interactive', desktop);
+    if (desktop) {
+      slideshow.tabIndex = 0;
+      slideshow.setAttribute('role', 'button');
+    } else {
+      slideshow.removeAttribute('tabindex');
+      slideshow.removeAttribute('role');
+    }
+  }
 
   function animateControlSprings() {
     if (reducedMotion.matches) {
@@ -441,7 +450,10 @@ function startSlideshow(slideshow) {
         fill.style.animation = `slideshow-progress ${SLIDE_INTERVAL}ms linear forwards`;
       }
     });
-    slideshow.setAttribute('aria-label', `${baseLabel}; slide ${activeIndex + 1} of ${slides.length}. Activate for the next slide.`);
+    const actionLabel = desktopGalleryInteraction.matches
+      ? 'Activate for the next slide.'
+      : 'Use the controls below to select a slide.';
+    slideshow.setAttribute('aria-label', `${baseLabel}; slide ${activeIndex + 1} of ${slides.length}. ${actionLabel}`);
     animateControlSprings();
   }
 
@@ -462,22 +474,30 @@ function startSlideshow(slideshow) {
 
   controlButtons.forEach((button, index) => {
     button.addEventListener('pointerenter', () => {
-      if (index !== activeIndex) showSlide(index);
+      if (desktopGalleryInteraction.matches && index !== activeIndex) showSlide(index);
     });
     button.addEventListener('focus', () => {
       if (index !== activeIndex) showSlide(index);
     });
     button.addEventListener('click', () => {
-      if (index !== activeIndex) showSlide(index);
+      if (!desktopGalleryInteraction.matches && index !== activeIndex) showSlide(index);
     });
   });
-  slideshow.addEventListener('click', advance);
+  slideshow.addEventListener('click', () => {
+    if (desktopGalleryInteraction.matches) advance();
+  });
   slideshow.addEventListener('keydown', event => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (!desktopGalleryInteraction.matches || (event.key !== 'Enter' && event.key !== ' ')) return;
     event.preventDefault();
     advance();
   });
+  desktopGalleryInteraction.addEventListener('change', () => {
+    syncFrameInteractionMode();
+    syncSlideState();
+    scheduleAdvance();
+  });
 
+  syncFrameInteractionMode();
   syncSlideState();
   scheduleAdvance();
 }
