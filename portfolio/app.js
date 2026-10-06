@@ -11,6 +11,7 @@ const DIRECTORY_OFFSET = 12;
 const directorySprings = directoryEntries.map((_, index) => spring.create(index === selectedIndex ? DIRECTORY_OFFSET : 0));
 let directorySpringFrame;
 let previousSpringTime;
+let alcorAnimationTimeout;
 
 function animateDirectorySelection() {
   if (reducedMotion.matches) {
@@ -75,9 +76,21 @@ function activateSection(section, shouldScroll = true) {
       page.classList.add('is-active');
     }
   });
+  if (section === 'inhouse') playAlcorLogoAnimation();
   if (shouldScroll) requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   });
+}
+
+function playAlcorLogoAnimation() {
+  const logo = document.querySelector('#portfolio-alcor-logo');
+  if (!logo) return;
+  clearTimeout(alcorAnimationTimeout);
+  logo.classList.remove('animate-draw');
+  if (reducedMotion.matches) return;
+  void logo.getBoundingClientRect();
+  requestAnimationFrame(() => logo.classList.add('animate-draw'));
+  alcorAnimationTimeout = setTimeout(() => logo.classList.remove('animate-draw'), 3500);
 }
 
 function startSlideshow(slideshow) {
@@ -124,6 +137,26 @@ async function mountC75525StrokeAnimation() {
     console.error('c75525 stroke animation could not load.', error);
   }
 }
+
+document.querySelectorAll('.photo-stack').forEach(stack => {
+  let shuffling = false;
+  stack.addEventListener('click', () => {
+    if (shuffling) return;
+    const frontPhoto = stack.querySelector(':scope > .stack-photo');
+    if (!frontPhoto) return;
+    if (reducedMotion.matches) {
+      stack.append(frontPhoto);
+      return;
+    }
+    shuffling = true;
+    stack.classList.add('is-shuffling');
+    setTimeout(() => {
+      stack.append(frontPhoto);
+      stack.classList.remove('is-shuffling');
+      shuffling = false;
+    }, 260);
+  });
+});
 
 directoryEntries.forEach((entry, index) => {
   entry.addEventListener('pointerenter', () => {

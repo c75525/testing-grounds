@@ -149,7 +149,10 @@ h1 {
 .directory-entry[aria-selected="true"] { color: var(--accent); }
 .directory-entry:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
 
-.content-pages { min-width: 0; }
+.content-pages {
+  min-width: 0;
+  overflow-anchor: none;
+}
 
 .content-page {
   display: grid;
@@ -164,7 +167,7 @@ h1 {
 .case-block { display: contents; }
 
 .case-study,
-.placeholder-case,
+.alcor-case,
 .inhouse-heading {
   grid-column: 1;
   width: min(100%, 720px);
@@ -295,50 +298,85 @@ h1 {
   line-height: 1;
 }
 
-.placeholder-case { aspect-ratio: 16 / 10; }
-
-.placeholder {
+.alcor-media {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 10;
   position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.alcor-logo-stage {
   display: grid;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--ink) 65%, transparent);
+  background: transparent;
 }
 
-.placeholder-mark span {
-  width: 28%;
-  aspect-ratio: 1 / 1;
+#portfolio-alcor-logo {
   display: block;
-  background: var(--ink);
-  clip-path: polygon(50% 0, 100% 100%, 76% 100%, 50% 42%, 24% 100%, 0 100%);
+  width: 86%;
+  height: auto;
+  overflow: visible;
 }
 
-.placeholder-portrait::before,
-.placeholder-screen::before {
-  width: 31%;
-  height: 72%;
-  content: '';
-  border-radius: 18px;
-  background: #f8f5f0;
+.alcor-logo-path { fill: #fff; }
+
+#portfolio-alcor-logo.animate-draw .alcor-logo-path {
+  fill: transparent;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
 }
 
-.placeholder-screen::before {
-  width: 62%;
-  height: 58%;
-  border-radius: 12px;
+#portfolio-alcor-logo.animate-draw [data-logo-order="1"] { animation: alcor-draw 2.2s ease forwards, alcor-fill 0.8s ease 2.1s forwards; }
+#portfolio-alcor-logo.animate-draw [data-logo-order="2"] { animation: alcor-draw 2.2s ease 0.15s forwards, alcor-fill 0.8s ease 2.25s forwards; }
+#portfolio-alcor-logo.animate-draw [data-logo-order="3"] { animation: alcor-draw 2.2s ease 0.3s forwards, alcor-fill 0.8s ease 2.4s forwards; }
+#portfolio-alcor-logo.animate-draw [data-logo-order="4"] { animation: alcor-draw 2.2s ease 0.45s forwards, alcor-fill 0.8s ease 2.55s forwards; }
+
+.photo-stack {
+  display: block;
+  padding: 0;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
 }
 
-.placeholder-paper span {
+.stack-photo {
+  width: auto;
+  height: 82%;
   position: absolute;
-  width: 43%;
-  height: 70%;
-  background: #f8f5f0;
+  top: 50%;
+  left: 50%;
+  object-fit: contain;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 35%);
+  transition: transform 420ms ease-in, opacity 240ms ease-in;
+  transform: translate(-50%, -50%);
 }
 
-.placeholder-paper span:nth-child(1) { transform: translate(-7%, -4%) rotate(-1deg); }
-.placeholder-paper span:nth-child(2) { transform: translate(2%, 2%) rotate(5deg); background: #d6d4d2; }
-.placeholder-paper span:nth-child(3) { transform: translate(-2%, 3%) rotate(-4deg); background: #ebe9e6; }
+.stack-photo:nth-child(1) { z-index: 5; transform: translate(-50%, -50%) rotate(-1deg); }
+.stack-photo:nth-child(2) { z-index: 4; transform: translate(calc(-50% + 5px), calc(-50% + 2px)) rotate(1.5deg); }
+.stack-photo:nth-child(3) { z-index: 3; transform: translate(calc(-50% - 4px), calc(-50% + 5px)) rotate(-2deg); }
+.stack-photo:nth-child(4) { z-index: 2; transform: translate(calc(-50% + 2px), calc(-50% + 7px)) rotate(2.5deg); }
+.stack-photo:nth-child(5) { z-index: 1; transform: translate(calc(-50% - 2px), calc(-50% + 9px)) rotate(-3deg); }
+
+.photo-stack:is(:hover, :focus-visible) .stack-photo:nth-child(1) { transform: translate(calc(-50% - 52px), calc(-50% - 2px)) rotate(-6deg); }
+.photo-stack:is(:hover, :focus-visible) .stack-photo:nth-child(2) { transform: translate(calc(-50% - 26px), calc(-50% + 1px)) rotate(-3deg); }
+.photo-stack:is(:hover, :focus-visible) .stack-photo:nth-child(3) { transform: translate(-50%, calc(-50% + 2px)) rotate(0); }
+.photo-stack:is(:hover, :focus-visible) .stack-photo:nth-child(4) { transform: translate(calc(-50% + 26px), calc(-50% + 4px)) rotate(3deg); }
+.photo-stack:is(:hover, :focus-visible) .stack-photo:nth-child(5) { transform: translate(calc(-50% + 52px), calc(-50% + 6px)) rotate(6deg); }
+
+.photo-stack.is-shuffling .stack-photo:nth-child(1) {
+  opacity: 0;
+  transform: translate(calc(-50% + 120px), calc(-50% - 4px)) rotate(12deg);
+}
+
+.photo-stack:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
+@keyframes alcor-draw { to { stroke-dashoffset: 0; } }
+@keyframes alcor-fill { to { fill: #fff; stroke: transparent; } }
 
 .load-identity,
 .directory-label,
@@ -402,7 +440,7 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
   }
 
   .case-study,
-  .placeholder-case,
+  .alcor-case,
   .inhouse-heading,
   .case-context {
     grid-column: 1;
@@ -425,6 +463,8 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
   .directory-label,
   .content-page.is-active .load-item { opacity: 1; animation: none !important; }
   .directory-lines path { stroke-dashoffset: 0; animation: none !important; }
+  #portfolio-alcor-logo .alcor-logo-path { fill: #fff; stroke: transparent; animation: none !important; }
+  .stack-photo { transition: none; }
   .directory-entry::before,
   .directory-entry::after { transform: translateY(-50%) scaleX(1); animation: none !important; }
 }
