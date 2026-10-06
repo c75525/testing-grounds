@@ -36,6 +36,13 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 - c75525.org’s third slide layers the supplied `c75525_stroke.svg` over its laptop-screen background using the saved Stroke Dotter settings: `32px` dash, `25px` gap, `29px/s`, forward direction, and a `0.75px` white round-capped stroke.
 - In-house begins with a temporary Alcor Life Extension Foundation case study using placeholder squares. Its Context and Approach copy is transcribed from the supplied markup and should be replaced or corrected against source copy when available.
 
+## Typesetting
+
+- Running copy uses Areal with kerning, common ligatures, and contextual alternates enabled.
+- Prose targets a maximum measure of `min(62ch, 640px)`, `1.55` line height, `text-wrap: pretty`, and no automatic hyphenation. The approved 10% context column remains the actual limiting measure on desktop, so it is materially narrower than the preferred 45–75-character range; widening it requires an explicit grid decision.
+- Headings use `text-wrap: balance`.
+- Final two words in context paragraphs are joined with a nonbreaking space as an orphan backstop. Meaningful compounds use U+2011 nonbreaking hyphens where needed.
+
 ## Responsive behavior
 
 - At 760px and below, the layout stacks: directory, project media, title, then context.

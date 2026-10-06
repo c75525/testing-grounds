@@ -5,6 +5,15 @@ const directoryEntries = [...document.querySelectorAll('.directory-entry')];
 const pages = [...document.querySelectorAll('.content-page')];
 let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'freelance');
 
+function bindLastTwoWords(element) {
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  const lastTextNode = textNodes.reverse().find(node => node.textContent.trim());
+  if (!lastTextNode) return;
+  lastTextNode.textContent = lastTextNode.textContent.replace(/(\S+)\s+(\S+)(\s*)$/u, '$1\u00a0$2$3');
+}
+
 function setDirectorySelection(index) {
   selectedIndex = (index + directoryEntries.length) % directoryEntries.length;
   directoryEntries.forEach((entry, entryIndex) => {
@@ -90,6 +99,7 @@ directoryEntries.forEach((entry, index) => {
   });
 });
 
+document.querySelectorAll('.case-context p, .inhouse-heading p').forEach(bindLastTwoWords);
 setDirectorySelection(selectedIndex);
 document.querySelectorAll('.slideshow').forEach(startSlideshow);
 mountC75525StrokeAnimation();
