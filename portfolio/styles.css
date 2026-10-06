@@ -120,7 +120,7 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 8fr) minmax(0, 1fr);
   align-items: start;
-  column-gap: 0;
+  column-gap: clamp(14px, 1.5vw, 28px);
   row-gap: clamp(96px, 11vw, 180px);
 }
 
@@ -141,7 +141,6 @@ h1 {
   align-self: center;
   width: 100%;
   max-width: min(62ch, 640px);
-  padding-left: clamp(14px, 1.5vw, 28px);
   font-size: var(--copy-size);
   line-height: 1.55;
   letter-spacing: normal;

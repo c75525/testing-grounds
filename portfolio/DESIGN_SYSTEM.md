@@ -16,7 +16,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 - The page is a centered five-column composition: **flexible outer gutter / 10% directory / 80% main content / 10% context / flexible outer gutter**.
 - The inner three-column content region has a maximum width of `1600px`, a minimum `24px` gutter on each side, and `clamp(24px, 4vw, 72px)` vertical padding. On screens wider than 1648px, the unused viewport width becomes equal left/right outer gutters.
-- The middle and context columns share no artificial gutter; the right column receives internal left padding of `clamp(14px, 1.5vw, 28px)`.
+- The middle and context tracks are separated by an explicit responsive grid gutter of `clamp(14px, 1.5vw, 28px)`; neither column uses spacing padding to simulate a gutter.
 - Middle-column case-study content is centered and capped at `720px`; project titles sit 20px below their frame.
 - Page rows are separated by `clamp(96px, 11vw, 180px)`.
 
