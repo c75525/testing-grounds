@@ -67,6 +67,7 @@ let connectorFrame;
 let connectorDrawFrame;
 let socialCaptionAnchor;
 let socialCaptionStarted = false;
+let socialConnectorFrozen = false;
 let portfolioLaunched = false;
 
 function animateDirectorySelection() {
@@ -193,14 +194,23 @@ function dismissSplash() {
 }
 
 function updateSocialConnector() {
+  if (socialConnectorFrozen) return;
   const frontPhoto = socialStack?.querySelector(':scope > .stack-photo');
   if (!socialCaptionStarted || !frontPhoto || !socialCaptionCopy || !socialConnector || !socialConnectorPath) return;
   const overlayRect = socialConnector.getBoundingClientRect();
   const captionRect = socialCaptionCopy.getBoundingClientRect();
   const lineHeight = Number.parseFloat(getComputedStyle(socialCaptionCopy).lineHeight);
-  const cardPoint = transformedElementPoint(frontPhoto, frontPhoto.offsetWidth - 8, frontPhoto.offsetHeight - 8);
-  const startX = cardPoint.x - overlayRect.left;
-  const startY = cardPoint.y - overlayRect.top;
+  let startX;
+  let startY;
+  if (desktopGalleryInteraction.matches) {
+    const cardPoint = transformedElementPoint(frontPhoto, frontPhoto.offsetWidth - 8, frontPhoto.offsetHeight - 8);
+    startX = cardPoint.x - overlayRect.left;
+    startY = cardPoint.y - overlayRect.top;
+  } else {
+    const stackRect = socialStack.getBoundingClientRect();
+    startX = stackRect.left + stackRect.width / 2 + frontPhoto.offsetWidth / 2 - 8 - overlayRect.left;
+    startY = stackRect.top + stackRect.height / 2 + frontPhoto.offsetHeight / 2 - 8 - overlayRect.top;
+  }
   if (!socialCaptionAnchor) {
     socialCaptionAnchor = innerWidth <= 760
       ? {
@@ -245,16 +255,16 @@ function trackSocialConnector(duration = 500) {
   connectorFrame = requestAnimationFrame(track);
 }
 
-function clearSocialCaption() {
+function clearSocialCaption(preserveConnector = false) {
   cancelAnimationFrame(typewriterFrame);
   cancelAnimationFrame(connectorDrawFrame);
-  socialCaptionAnchor = undefined;
+  if (!preserveConnector) socialCaptionAnchor = undefined;
   if (socialCaptionCopy) {
     socialCaptionCopy.replaceChildren();
     socialCaptionCopy.style.removeProperty('min-height');
   }
   if (socialCaptionLive) socialCaptionLive.textContent = '';
-  socialConnectorPath?.removeAttribute('d');
+  if (!preserveConnector) socialConnectorPath?.removeAttribute('d');
 }
 
 function buildStableTypewriter(text) {
@@ -279,7 +289,7 @@ function buildStableTypewriter(text) {
   return glyphs;
 }
 
-function renderFrontSocialCaption() {
+function renderFrontSocialCaption(preserveConnector = false) {
   const frontPhoto = socialStack?.querySelector(':scope > .stack-photo');
   const caption = frontPhoto ? SOCIAL_CAPTIONS[frontPhoto.dataset.postId] : undefined;
   if (!caption || !socialCaptionCopy || !socialCaptionLive) return;
@@ -288,7 +298,7 @@ function renderFrontSocialCaption() {
   socialCaptionLive.textContent = fullCaption;
   socialCaptionCopy.textContent = fullCaption;
   socialCaptionCopy.style.minHeight = `${socialCaptionCopy.getBoundingClientRect().height}px`;
-  socialCaptionAnchor = undefined;
+  if (!preserveConnector) socialCaptionAnchor = undefined;
   if (reducedMotion.matches) {
     socialCaptionCopy.textContent = fullCaption;
     updateSocialConnector();
@@ -373,10 +383,13 @@ function startSlideshow(slideshow) {
     button.className = 'slideshow-control';
     button.type = 'button';
     button.setAttribute('aria-label', `Show slide ${index + 1} of ${slides.length}`);
+    const shape = document.createElement('span');
+    shape.className = 'slideshow-control-shape';
+    shape.setAttribute('aria-hidden', 'true');
     const fill = document.createElement('span');
     fill.className = 'slideshow-control-fill';
-    fill.setAttribute('aria-hidden', 'true');
-    button.append(fill);
+    shape.append(fill);
+    button.append(shape);
     controls.append(button);
     return button;
   });
@@ -485,6 +498,7 @@ function startSlideshow(slideshow) {
   });
   slideshow.addEventListener('click', () => {
     if (desktopGalleryInteraction.matches) advance();
+    else controls.classList.toggle('is-revealed');
   });
   slideshow.addEventListener('keydown', event => {
     if (!desktopGalleryInteraction.matches || (event.key !== 'Enter' && event.key !== ' ')) return;
@@ -545,23 +559,29 @@ document.querySelectorAll('.photo-stack').forEach(stack => {
     if (shuffling) return;
     const frontPhoto = stack.querySelector(':scope > .stack-photo');
     if (!frontPhoto) return;
+    const preserveMobileConnector = !desktopGalleryInteraction.matches;
     socialCaptionStarted = true;
-    clearSocialCaption();
+    socialConnectorFrozen = preserveMobileConnector;
+    clearSocialCaption(preserveMobileConnector);
     if (reducedMotion.matches) {
       stack.append(frontPhoto);
-      renderFrontSocialCaption();
-      animateSocialConnector();
+      renderFrontSocialCaption(preserveMobileConnector);
+      socialConnectorFrozen = false;
+      if (preserveMobileConnector) updateSocialConnector();
+      else animateSocialConnector();
       return;
     }
     shuffling = true;
     stack.classList.add('is-shuffling');
-    trackSocialConnector(320);
+    if (!preserveMobileConnector) trackSocialConnector(320);
     setTimeout(() => {
       stack.append(frontPhoto);
       stack.classList.remove('is-shuffling');
       shuffling = false;
-      renderFrontSocialCaption();
-      animateSocialConnector();
+      renderFrontSocialCaption(preserveMobileConnector);
+      socialConnectorFrozen = false;
+      if (preserveMobileConnector) updateSocialConnector();
+      else animateSocialConnector();
     }, 260);
   });
 });
