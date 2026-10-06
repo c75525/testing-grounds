@@ -563,8 +563,10 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
 
   .case-context h3:not(:first-child) { margin-top: 3em; }
 
-  .social-caption-connector { display: none; }
-  .social-caption { text-align: left; }
+  .social-caption {
+    padding-top: 32px;
+    text-align: left;
+  }
 
   .inhouse-heading { margin-bottom: 0; text-align: center; }
 }

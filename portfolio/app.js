@@ -140,7 +140,7 @@ function transformedElementPoint(element, x, y) {
 
 function updateSocialConnector() {
   const frontPhoto = socialStack?.querySelector(':scope > .stack-photo');
-  if (!socialCaptionStarted || !frontPhoto || !socialCaptionCopy || !socialConnector || !socialConnectorPath || innerWidth <= 760) return;
+  if (!socialCaptionStarted || !frontPhoto || !socialCaptionCopy || !socialConnector || !socialConnectorPath) return;
   const overlayRect = socialConnector.getBoundingClientRect();
   const captionRect = socialCaptionCopy.getBoundingClientRect();
   const lineHeight = Number.parseFloat(getComputedStyle(socialCaptionCopy).lineHeight);
@@ -148,10 +148,15 @@ function updateSocialConnector() {
   const startX = cardPoint.x - overlayRect.left;
   const startY = cardPoint.y - overlayRect.top;
   if (!socialCaptionAnchor) {
-    socialCaptionAnchor = {
-      x: captionRect.left - overlayRect.left - 16,
-      y: captionRect.top - overlayRect.top + lineHeight * 1.5,
-    };
+    socialCaptionAnchor = innerWidth <= 760
+      ? {
+          x: captionRect.left - overlayRect.left + 16,
+          y: captionRect.top - overlayRect.top - 16,
+        }
+      : {
+          x: captionRect.left - overlayRect.left - 16,
+          y: captionRect.top - overlayRect.top + lineHeight * 1.5,
+        };
   }
   socialConnectorPath.setAttribute('d', `M${startX} ${startY}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
 }
