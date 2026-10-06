@@ -361,15 +361,44 @@ function playAlcorLogoAnimation() {
 
 function startSlideshow(slideshow) {
   const slides = [...slideshow.querySelectorAll(':scope > .slide')];
-  if (slides.length < 2 || reducedMotion.matches) return;
-  let activeIndex = 0;
-  setInterval(() => {
-    slides[activeIndex].classList.remove('is-active');
-    slides[activeIndex].setAttribute('aria-hidden', 'true');
+  if (slides.length < 2) return;
+  const baseLabel = slideshow.getAttribute('aria-label') || 'Project slideshow';
+  let activeIndex = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
+  let advanceTimeout;
+
+  slideshow.classList.add('is-interactive');
+  slideshow.tabIndex = 0;
+  slideshow.setAttribute('role', 'button');
+
+  function syncSlideState() {
+    slides.forEach((slide, index) => {
+      const active = index === activeIndex;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', String(!active));
+    });
+    slideshow.setAttribute('aria-label', `${baseLabel}; slide ${activeIndex + 1} of ${slides.length}. Activate for the next slide.`);
+  }
+
+  function scheduleAdvance() {
+    clearTimeout(advanceTimeout);
+    if (!reducedMotion.matches) advanceTimeout = setTimeout(advance, SLIDE_INTERVAL);
+  }
+
+  function advance() {
     activeIndex = (activeIndex + 1) % slides.length;
-    slides[activeIndex].classList.add('is-active');
-    slides[activeIndex].setAttribute('aria-hidden', 'false');
-  }, SLIDE_INTERVAL);
+    syncSlideState();
+    scheduleAdvance();
+  }
+
+  slideshow.addEventListener('click', advance);
+  slideshow.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    advance();
+  });
+
+  syncSlideState();
+  scheduleAdvance();
 }
 
 async function mountC75525StrokeAnimation() {

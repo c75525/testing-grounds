@@ -287,6 +287,16 @@ h1 {
 
 .project-frame.is-tall { aspect-ratio: 1.678 / 1; }
 
+.project-frame.is-interactive {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.project-frame.is-interactive:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
 .slide {
   position: absolute;
   inset: 0;
