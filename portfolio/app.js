@@ -249,11 +249,33 @@ function clearSocialCaption() {
   cancelAnimationFrame(connectorDrawFrame);
   socialCaptionAnchor = undefined;
   if (socialCaptionCopy) {
-    socialCaptionCopy.textContent = '';
+    socialCaptionCopy.replaceChildren();
     socialCaptionCopy.style.removeProperty('min-height');
   }
   if (socialCaptionLive) socialCaptionLive.textContent = '';
   socialConnectorPath?.removeAttribute('d');
+}
+
+function buildStableTypewriter(text) {
+  const fragment = document.createDocumentFragment();
+  const glyphs = [];
+  captionGraphemes(text).forEach(grapheme => {
+    if (grapheme === '\n') {
+      fragment.append(document.createElement('br'));
+      return;
+    }
+    if (/^\s+$/u.test(grapheme)) {
+      fragment.append(document.createTextNode(grapheme));
+      return;
+    }
+    const glyph = document.createElement('span');
+    glyph.className = 'typewriter-glyph';
+    glyph.textContent = grapheme;
+    glyphs.push(glyph);
+    fragment.append(glyph);
+  });
+  socialCaptionCopy.replaceChildren(fragment);
+  return glyphs;
 }
 
 function renderFrontSocialCaption() {
@@ -271,17 +293,16 @@ function renderFrontSocialCaption() {
     updateSocialConnector();
     return;
   }
-  const graphemes = captionGraphemes(fullCaption);
+  const glyphs = buildStableTypewriter(fullCaption);
   let visibleCount = 0;
   let previousTime;
-  socialCaptionCopy.textContent = '';
   function type(time) {
     if (previousTime === undefined || time - previousTime >= TYPEWRITER_INTERVAL) {
+      glyphs[visibleCount]?.classList.add('is-visible');
       visibleCount += 1;
       previousTime = time;
-      socialCaptionCopy.textContent = graphemes.slice(0, visibleCount).join('');
     }
-    if (visibleCount < graphemes.length) typewriterFrame = requestAnimationFrame(type);
+    if (visibleCount < glyphs.length) typewriterFrame = requestAnimationFrame(type);
   }
   typewriterFrame = requestAnimationFrame(type);
   updateSocialConnector();

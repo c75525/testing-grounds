@@ -521,6 +521,9 @@ h1 {
   text-wrap: pretty;
 }
 
+.typewriter-glyph { visibility: hidden; }
+.typewriter-glyph.is-visible { visibility: visible; }
+
 .visually-hidden {
   width: 1px;
   height: 1px;

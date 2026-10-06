@@ -1,4 +1,4 @@
-# Samuel Plattten — Portfolio Design System
+# Samuel Platten — Portfolio Design System
 
 ## Source authority
 
@@ -8,7 +8,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 - Background: `#000000`.
 - Body/copy: `#e1ede8`.
-- Samuel Plattten name, selected directory entry, and project-site titles: `#fffbcf`.
+- Samuel Platten name, selected directory entry, and project-site titles: `#fffbcf`.
 - Typography: locally hosted Areal variable font (`assets/fonts/ABCArealVariable.ttf`).
 - No decorative cards, gradients, rounded interface controls, or strokes around finished In-house media.
 
@@ -22,7 +22,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 ## Splash entrance
 
-- Every page load begins on a full-viewport black splash matching the supplied mockup: centered “Works by / Samuel Plattten,” an italic welcome message, and a bordered Enter button.
+- Every page load begins on a full-viewport black splash matching the supplied mockup: centered “Works by / Samuel Platten,” an italic welcome message, and a bordered Enter button.
 - The splash composition fades upward over `700ms ease-in`. After that reveal, “Welcome to my portfolio, take a look around.\n:-)” types one grapheme at a time into a reserved-height space. The Enter button fades upward only after typing completes.
 - While the splash is active, the portfolio shell is visually hidden, inert, and marked `aria-hidden`; its slideshows and motion do not start behind the overlay.
 - Clicking Enter fades the splash upward over `500ms ease-in`, reveals the shell, selects In-house, and begins the portfolio’s established entrance sequence from the start.
@@ -51,7 +51,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 - The second In-house box cross-fades the supplied identity overview, color, and typography mockups at the standard 10-second interval.
 - The third In-house box cross-fades the supplied front and back Patience tee images at the standard 10-second interval.
 - The fourth In-house box is a five-image stack using the supplied Instagram posts in this initial order: `Da3dQmmEu52`, `DWFQPh3Aa7R`, `DX99IZNj2Z4`, `DYVTq2DEr3b`, and `DZD7bXGj0Ha`. Hover and keyboard focus spread the stack; click, Enter, or Space sends the front image to the back.
-- Each stack image is keyed to its supplied post caption. The active caption appears beside the stack in synthesized Areal italic, wrapped in typographic quotation marks, and types one grapheme at a time at approximately one character per animation frame. A one-pixel SVG connector begins `8px` inside the transformed front image’s true lower-right corner, renders above that card, and ends beside the caption. When the stack first enters the viewport—and after every shuffle—the caption-side endpoint stays fixed while the card-side endpoint extends outward over `360ms ease-in`, matching the directory branch timing. The caption-side endpoint remains fixed; only the card-side endpoint tracks spread and shuffle motion. On mobile, the connector runs from the card to a fixed point `16px` above and inside the caption’s left edge, with `32px` of reserved top padding so it never crosses the text. The initial typewriter and connector wait until the stack enters the viewport. The full caption is announced once through a separate live region rather than character by character. Reduced-motion mode reorders and renders the complete caption immediately.
+- Each stack image is keyed to its supplied post caption. The active caption appears beside the stack in synthesized Areal italic, wrapped in typographic quotation marks, and types one grapheme at a time at approximately one character per animation frame. A one-pixel SVG connector begins `8px` inside the transformed front image’s true lower-right corner, renders above that card, and ends beside the caption. When the stack first enters the viewport—and after every shuffle—the caption-side endpoint stays fixed while the card-side endpoint extends outward over `360ms ease-in`, matching the directory branch timing. The caption-side endpoint remains fixed; only the card-side endpoint tracks spread and shuffle motion. On mobile, the connector runs from the card to a fixed point `16px` above and inside the caption’s left edge, with `32px` of reserved top padding so it never crosses the text. The initial typewriter and connector wait until the stack enters the viewport. Before typing begins, the complete caption is laid out as visibility-hidden grapheme spans with permanent spaces and line breaks; revealing those existing spans one at a time prevents line-wrap, rag, or paragraph-position jitter. The full caption is announced once through a separate live region rather than character by character. Reduced-motion mode reorders and renders the complete caption immediately.
 - The fifth In-house box cross-fades the three supplied Tour Manager mockups at the standard 10-second interval.
 
 ## Typesetting
