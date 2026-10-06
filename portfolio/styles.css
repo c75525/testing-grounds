@@ -297,6 +297,48 @@ h1 {
   outline-offset: 4px;
 }
 
+.slideshow-controls {
+  width: min(100%, 520px);
+  min-height: 34px;
+  margin: 12px auto 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 24px);
+}
+
+.slideshow-control {
+  --control-scale-y: 1;
+  min-width: 0;
+  height: 14px;
+  position: relative;
+  flex: 1 1 0;
+  overflow: hidden;
+  padding: 0;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  cursor: pointer;
+  transform: scaleY(var(--control-scale-y));
+  transform-origin: center;
+  will-change: transform;
+}
+
+.slideshow-control-fill {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.slideshow-control:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
 .slide {
   position: absolute;
   inset: 0;
@@ -575,6 +617,11 @@ body.is-loaded .inhouse-page.is-active .alcor-patience-row .load-item { animatio
 body.is-loaded .inhouse-page.is-active .alcor-social-row .load-item { animation-delay: 1950ms; }
 body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-delay: 2100ms; }
 
+@keyframes slideshow-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 @keyframes splash-fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -680,6 +727,8 @@ body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-de
   .splash-content,
   .splash-enter { opacity: 1; transform: none; animation: none !important; }
   .slide { transition: none; }
+  .slideshow-control-fill { animation: none !important; }
+  .slideshow-control.is-active .slideshow-control-fill { transform: scaleX(1); }
   .load-identity,
   .directory-label,
   .content-page.is-active .load-item { opacity: 1; animation: none !important; }

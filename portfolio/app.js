@@ -363,12 +363,65 @@ function startSlideshow(slideshow) {
   const slides = [...slideshow.querySelectorAll(':scope > .slide')];
   if (slides.length < 2) return;
   const baseLabel = slideshow.getAttribute('aria-label') || 'Project slideshow';
+  const controls = document.createElement('div');
+  controls.className = 'slideshow-controls';
+  controls.setAttribute('role', 'group');
+  controls.setAttribute('aria-label', `${baseLabel} slide selection`);
+  const controlButtons = slides.map((_, index) => {
+    const button = document.createElement('button');
+    button.className = 'slideshow-control';
+    button.type = 'button';
+    button.setAttribute('aria-label', `Show slide ${index + 1} of ${slides.length}`);
+    const fill = document.createElement('span');
+    fill.className = 'slideshow-control-fill';
+    fill.setAttribute('aria-hidden', 'true');
+    button.append(fill);
+    controls.append(button);
+    return button;
+  });
+  slideshow.insertAdjacentElement('afterend', controls);
+
   let activeIndex = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
   let advanceTimeout;
+  let controlSpringFrame;
+  let previousControlSpringTime;
+  const controlSprings = controlButtons.map(() => spring.create(1));
 
   slideshow.classList.add('is-interactive');
   slideshow.tabIndex = 0;
   slideshow.setAttribute('role', 'button');
+
+  function animateControlSprings() {
+    if (reducedMotion.matches) {
+      controlButtons.forEach((button, index) => {
+        const value = index === activeIndex ? 0.55 : 1;
+        controlSprings[index].value = value;
+        controlSprings[index].velocity = 0;
+        button.style.setProperty('--control-scale-y', value);
+      });
+      return;
+    }
+    if (controlSpringFrame) return;
+    previousControlSpringTime = undefined;
+    function tick(time) {
+      const delta = previousControlSpringTime === undefined ? 0 : Math.min((time - previousControlSpringTime) / 1000, 0.05);
+      previousControlSpringTime = time;
+      let settled = true;
+      controlSprings.forEach((state, index) => {
+        const target = index === activeIndex ? 0.55 : 1;
+        spring.update(state, target, 0.18, 0.52, delta);
+        controlButtons[index].style.setProperty('--control-scale-y', state.value);
+        if (Math.abs(state.value - target) > 0.005 || Math.abs(state.velocity) > 0.005) settled = false;
+      });
+      if (settled) {
+        controlSpringFrame = undefined;
+        previousControlSpringTime = undefined;
+      } else {
+        controlSpringFrame = requestAnimationFrame(tick);
+      }
+    }
+    controlSpringFrame = requestAnimationFrame(tick);
+  }
 
   function syncSlideState() {
     slides.forEach((slide, index) => {
@@ -376,7 +429,20 @@ function startSlideshow(slideshow) {
       slide.classList.toggle('is-active', active);
       slide.setAttribute('aria-hidden', String(!active));
     });
+    controlButtons.forEach((button, index) => {
+      const active = index === activeIndex;
+      button.classList.toggle('is-active', active);
+      if (active) button.setAttribute('aria-current', 'true');
+      else button.removeAttribute('aria-current');
+      const fill = button.querySelector('.slideshow-control-fill');
+      fill.style.animation = 'none';
+      if (active && !reducedMotion.matches) {
+        void fill.offsetWidth;
+        fill.style.animation = `slideshow-progress ${SLIDE_INTERVAL}ms linear forwards`;
+      }
+    });
     slideshow.setAttribute('aria-label', `${baseLabel}; slide ${activeIndex + 1} of ${slides.length}. Activate for the next slide.`);
+    animateControlSprings();
   }
 
   function scheduleAdvance() {
@@ -384,12 +450,27 @@ function startSlideshow(slideshow) {
     if (!reducedMotion.matches) advanceTimeout = setTimeout(advance, SLIDE_INTERVAL);
   }
 
-  function advance() {
-    activeIndex = (activeIndex + 1) % slides.length;
+  function showSlide(index) {
+    activeIndex = index;
     syncSlideState();
     scheduleAdvance();
   }
 
+  function advance() {
+    showSlide((activeIndex + 1) % slides.length);
+  }
+
+  controlButtons.forEach((button, index) => {
+    button.addEventListener('pointerenter', () => {
+      if (index !== activeIndex) showSlide(index);
+    });
+    button.addEventListener('focus', () => {
+      if (index !== activeIndex) showSlide(index);
+    });
+    button.addEventListener('click', () => {
+      if (index !== activeIndex) showSlide(index);
+    });
+  });
   slideshow.addEventListener('click', advance);
   slideshow.addEventListener('keydown', event => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
