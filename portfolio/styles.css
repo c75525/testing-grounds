@@ -106,11 +106,16 @@ h1 {
   cursor: pointer;
   line-height: 1;
   text-align: left;
-  translate: var(--directory-offset, 0px) -50%;
+  transform: translateY(-50%);
+}
+
+.directory-entry span {
+  display: block;
+  transform: translateX(var(--directory-offset, 0px));
 }
 
 .directory-entry[data-section="inhouse"] { top: 48px; }
-.directory-entry[data-section="freelance"] { top: 102px; }
+.directory-entry[data-section="freelance"] { top: 104px; }
 
 .directory-entry[aria-selected="true"] { color: var(--accent); }
 .directory-entry:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
@@ -338,8 +343,8 @@ body.is-loaded .content-page.is-active .inhouse-heading { animation-delay: 1350m
 }
 
 @keyframes fade-left {
-  from { opacity: 0; transform: translateX(-14px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; left: 48px; }
+  to { opacity: 1; left: 62px; }
 }
 
 @keyframes draw-line { to { stroke-dashoffset: 0; } }

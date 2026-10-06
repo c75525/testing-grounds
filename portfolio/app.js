@@ -6,6 +6,7 @@ const STROKE_SPEED = 29;
 const directoryEntries = [...document.querySelectorAll('.directory-entry')];
 const pages = [...document.querySelectorAll('.content-page')];
 let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'freelance');
+let hoveredIndex = -1;
 const DIRECTORY_OFFSET = 12;
 const directorySprings = directoryEntries.map((_, index) => spring.create(index === selectedIndex ? DIRECTORY_OFFSET : 0));
 let directorySpringFrame;
@@ -14,7 +15,7 @@ let previousSpringTime;
 function animateDirectorySelection() {
   if (reducedMotion.matches) {
     directoryEntries.forEach((entry, index) => {
-      const value = index === selectedIndex ? DIRECTORY_OFFSET : 0;
+      const value = index === selectedIndex || index === hoveredIndex ? DIRECTORY_OFFSET : 0;
       directorySprings[index].value = value;
       directorySprings[index].velocity = 0;
       entry.style.setProperty('--directory-offset', `${value}px`);
@@ -28,7 +29,7 @@ function animateDirectorySelection() {
     previousSpringTime = time;
     let settled = true;
     directorySprings.forEach((state, index) => {
-      const target = index === selectedIndex ? DIRECTORY_OFFSET : 0;
+      const target = index === selectedIndex || index === hoveredIndex ? DIRECTORY_OFFSET : 0;
       spring.update(state, target, 0.22, 0.58, delta);
       directoryEntries[index].style.setProperty('--directory-offset', `${state.value}px`);
       if (Math.abs(state.value - target) > 0.01 || Math.abs(state.velocity) > 0.01) settled = false;
@@ -125,6 +126,14 @@ async function mountC75525StrokeAnimation() {
 }
 
 directoryEntries.forEach((entry, index) => {
+  entry.addEventListener('pointerenter', () => {
+    hoveredIndex = index;
+    animateDirectorySelection();
+  });
+  entry.addEventListener('pointerleave', () => {
+    if (hoveredIndex === index) hoveredIndex = -1;
+    animateDirectorySelection();
+  });
   entry.addEventListener('click', () => activateSection(entry.dataset.section));
   entry.addEventListener('keydown', event => {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
