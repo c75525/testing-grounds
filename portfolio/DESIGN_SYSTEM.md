@@ -14,7 +14,7 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 
 ## Desktop grid and spacing
 
-- The page is a centered five-column composition: **flexible outer gutter / 10% directory / 80% main content / 10% context / flexible outer gutter**.
+- The page is a centered five-column composition: **flexible outer gutter / 10% directory / 65% main content / 25% context / flexible outer gutter**.
 - The inner three-column content region has a maximum width of `1600px`, a minimum `24px` gutter on each side, and `clamp(24px, 4vw, 72px)` vertical padding. On screens wider than 1648px, the unused viewport width becomes equal left/right outer gutters.
 - The middle and context tracks are separated by an explicit responsive grid gutter of `clamp(14px, 1.5vw, 28px)`; neither column uses spacing padding to simulate a gutter.
 - Middle-column case-study content is centered and capped at `720px`; project titles sit 20px below their frame.
@@ -39,7 +39,8 @@ The supplied directory/UI markups are authoritative for hierarchy, column struct
 ## Typesetting
 
 - Running copy uses Areal with kerning, common ligatures, and contextual alternates enabled.
-- Prose targets a maximum measure of `min(62ch, 640px)`, `1.55` line height, `text-wrap: pretty`, and no automatic hyphenation. The approved 10% context column remains the actual limiting measure on desktop, so it is materially narrower than the preferred 45–75-character range; widening it requires an explicit grid decision.
+- Prose targets a maximum measure of `min(62ch, 640px)`, `1.55` line height, `text-wrap: pretty`, and no automatic hyphenation. The 25% context track provides approximately 390px at the 1600px shell maximum, approaching the lower bound of the preferred 45–75-character range at the approved type size.
+- Longer descriptions are divided into logical paragraphs rather than forced into a single dense block.
 - Headings use `text-wrap: balance`.
 - Final two words in context paragraphs are joined with a nonbreaking space as an orphan backstop. Meaningful compounds use U+2011 nonbreaking hyphens where needed.
 
