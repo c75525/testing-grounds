@@ -34,6 +34,81 @@ body {
   background: var(--background);
 }
 
+body[data-splash-active="true"] { overflow: hidden; }
+body[data-splash-active="true"] .portfolio-shell { visibility: hidden; }
+
+.splash {
+  min-height: 100svh;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--background);
+  transition: opacity 500ms ease-in, transform 500ms ease-in;
+}
+
+.splash.is-exiting {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-16px);
+}
+
+.splash-content {
+  width: min(100%, 680px);
+  display: grid;
+  justify-items: center;
+  opacity: 0;
+  text-align: center;
+}
+
+body.is-splash-ready .splash-content { animation: splash-fade-up 700ms ease-in forwards; }
+
+.splash-identity {
+  display: flex;
+  gap: clamp(24px, 4vw, 48px);
+  color: var(--ink);
+  font-size: clamp(1rem, 1.35vw, 1.5rem);
+  line-height: 1;
+}
+
+.splash-identity span:last-child { color: var(--accent); }
+
+.splash-message-space {
+  min-height: 3.2em;
+  margin-top: clamp(44px, 5vw, 72px);
+  font-size: clamp(1rem, 1.35vw, 1.5rem);
+  line-height: 1.25;
+}
+
+.splash-message {
+  font-style: italic;
+  font-synthesis: style;
+  white-space: pre-line;
+  text-wrap: balance;
+}
+
+.splash-enter {
+  margin-top: clamp(34px, 4vw, 56px);
+  padding: 10px 18px;
+  visibility: hidden;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.splash-enter.is-ready {
+  visibility: visible;
+  animation: splash-button-in 450ms ease-in forwards;
+}
+
+.splash-enter:hover { color: var(--accent); border-color: var(--accent); }
+.splash-enter:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
+
 button,
 a { font: inherit; }
 
@@ -487,6 +562,16 @@ body.is-loaded .inhouse-page.is-active .alcor-patience-row .load-item { animatio
 body.is-loaded .inhouse-page.is-active .alcor-social-row .load-item { animation-delay: 1950ms; }
 body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-delay: 2100ms; }
 
+@keyframes splash-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splash-button-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(-16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -578,6 +663,9 @@ body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-de
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .splash { transition: none; }
+  .splash-content,
+  .splash-enter { opacity: 1; transform: none; animation: none !important; }
   .slide { transition: none; }
   .load-identity,
   .directory-label,

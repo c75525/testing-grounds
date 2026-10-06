@@ -4,6 +4,8 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const SLIDE_INTERVAL = 10_000;
 const STROKE_SPEED = 29;
 const TYPEWRITER_INTERVAL = 16;
+const SPLASH_TYPE_INTERVAL = 36;
+const SPLASH_MESSAGE = 'Welcome to my portfolio, take a look around.\n:-)';
 const SOCIAL_CAPTIONS = {
   Da3dQmmEu52: `Take a look at this vintage pamphlet on cryonics from the early days of Alcor. Notice those two stars hanging above the tree?
 
@@ -48,7 +50,11 @@ const socialCaptionCopy = document.querySelector('.social-caption-copy');
 const socialCaptionLive = document.querySelector('.social-caption-live');
 const socialConnector = document.querySelector('.social-caption-connector');
 const socialConnectorPath = socialConnector?.querySelector('path');
-let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'freelance');
+const splash = document.querySelector('.splash');
+const splashMessage = document.querySelector('.splash-message');
+const splashEnter = document.querySelector('.splash-enter');
+const portfolioShell = document.querySelector('.portfolio-shell');
+let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section === 'inhouse');
 let hoveredIndex = -1;
 const DIRECTORY_OFFSET = 12;
 const directorySprings = directoryEntries.map((_, index) => spring.create(index === selectedIndex ? DIRECTORY_OFFSET : 0));
@@ -60,6 +66,7 @@ let connectorFrame;
 let connectorDrawFrame;
 let socialCaptionAnchor;
 let socialCaptionStarted = false;
+let portfolioLaunched = false;
 
 function animateDirectorySelection() {
   if (reducedMotion.matches) {
@@ -136,6 +143,52 @@ function transformedElementPoint(element, x, y) {
     x: parentRect.left + parent.clientLeft + element.offsetLeft + originX + matrix.a * localX + matrix.c * localY + matrix.e,
     y: parentRect.top + parent.clientTop + element.offsetTop + originY + matrix.b * localX + matrix.d * localY + matrix.f,
   };
+}
+
+function revealSplashEnter() {
+  splashEnter?.classList.add('is-ready');
+}
+
+function typeSplashMessage() {
+  if (!splashMessage) return;
+  if (reducedMotion.matches) {
+    splashMessage.textContent = SPLASH_MESSAGE;
+    revealSplashEnter();
+    return;
+  }
+  const graphemes = captionGraphemes(SPLASH_MESSAGE);
+  let visibleCount = 0;
+  let previousTime;
+  function type(time) {
+    if (previousTime === undefined || time - previousTime >= SPLASH_TYPE_INTERVAL) {
+      visibleCount += 1;
+      previousTime = time;
+      splashMessage.textContent = graphemes.slice(0, visibleCount).join('');
+    }
+    if (visibleCount < graphemes.length) requestAnimationFrame(type);
+    else setTimeout(revealSplashEnter, 180);
+  }
+  requestAnimationFrame(type);
+}
+
+function launchPortfolio() {
+  if (portfolioLaunched) return;
+  portfolioLaunched = true;
+  if (splash) splash.hidden = true;
+  document.body.dataset.splashActive = 'false';
+  portfolioShell?.removeAttribute('inert');
+  portfolioShell?.removeAttribute('aria-hidden');
+  window.scrollTo({ top: 0, behavior: 'auto' });
+  activateSection('inhouse', false);
+  document.querySelectorAll('.slideshow').forEach(startSlideshow);
+  mountC75525StrokeAnimation();
+  requestAnimationFrame(() => document.body.classList.add('is-loaded'));
+}
+
+function dismissSplash() {
+  if (!splash || !splashEnter?.classList.contains('is-ready')) return;
+  splash.classList.add('is-exiting');
+  setTimeout(launchPortfolio, reducedMotion.matches ? 0 : 500);
 }
 
 function updateSocialConnector() {
@@ -405,6 +458,10 @@ if ('ResizeObserver' in window && alcorIntroMedia && alcorIntroContext) {
   if (socialCaptionCopy) alcorLayoutObserver.observe(socialCaptionCopy);
 }
 setDirectorySelection(selectedIndex);
-document.querySelectorAll('.slideshow').forEach(startSlideshow);
-mountC75525StrokeAnimation();
-requestAnimationFrame(() => document.body.classList.add('is-loaded'));
+if (splash && splashEnter) {
+  splashEnter.addEventListener('click', dismissSplash);
+  requestAnimationFrame(() => document.body.classList.add('is-splash-ready'));
+  setTimeout(typeSplashMessage, reducedMotion.matches ? 0 : 700);
+} else {
+  launchPortfolio();
+}

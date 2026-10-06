@@ -4,10 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Samuel Plattten — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261006-1012">
+  <link rel="stylesheet" href="styles.css?v=20261006-1045">
 </head>
-<body>
-  <div class="portfolio-shell">
+<body data-splash-active="true">
+  <section class="splash" aria-label="Portfolio welcome">
+    <div class="splash-content">
+      <div class="splash-identity">
+        <span>Works by</span>
+        <span>Samuel Plattten</span>
+      </div>
+      <div class="splash-message-space">
+        <p class="splash-message" aria-hidden="true"></p>
+        <p class="visually-hidden splash-message-live" aria-live="polite">Welcome to my portfolio, take a look around. :-)</p>
+      </div>
+      <button class="splash-enter" type="button">Enter</button>
+    </div>
+  </section>
+  <div class="portfolio-shell" inert aria-hidden="true">
     <aside class="directory" aria-label="Portfolio directory">
       <header class="identity load-identity">
         <p>Works by</p>
@@ -17,13 +30,13 @@
         <svg class="directory-lines" viewBox="0 0 96 130" aria-hidden="true">
           <path id="directory-trunk" pathLength="1" d="M20 0V101" />
         </svg>
-        <button class="directory-entry" type="button" data-section="inhouse" aria-controls="inhouse-page" aria-selected="false"><span class="directory-label"><span class="directory-label-text">In‑house</span></span></button>
-        <button class="directory-entry" type="button" data-section="freelance" aria-controls="freelance-page" aria-selected="true"><span class="directory-label"><span class="directory-label-text">Freelance</span></span></button>
+        <button class="directory-entry" type="button" data-section="inhouse" aria-controls="inhouse-page" aria-selected="true"><span class="directory-label"><span class="directory-label-text">In‑house</span></span></button>
+        <button class="directory-entry" type="button" data-section="freelance" aria-controls="freelance-page" aria-selected="false"><span class="directory-label"><span class="directory-label-text">Freelance</span></span></button>
       </nav>
     </aside>
 
     <main class="content-pages">
-      <section id="freelance-page" class="content-page freelance-page is-active" data-page="freelance" aria-label="Freelance projects">
+      <section id="freelance-page" class="content-page freelance-page" data-page="freelance" aria-label="Freelance projects" hidden>
         <div class="case-block">
           <article class="case-study load-item">
             <div class="project-frame slideshow" aria-label="c75525.org mockups">
@@ -76,7 +89,7 @@
         </div>
       </section>
 
-      <section id="inhouse-page" class="content-page inhouse-page" data-page="inhouse" aria-label="In-house projects" hidden>
+      <section id="inhouse-page" class="content-page inhouse-page is-active" data-page="inhouse" aria-label="In-house projects">
         <div class="inhouse-heading load-item">
           <h2>Alcor Life Extension Foundation</h2>
           <p>Communications, Brand Systems, &amp; Digital Experiences</p>
@@ -155,6 +168,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="app.js?v=20261006-1012"></script>
+  <script type="module" src="app.js?v=20261006-1045"></script>
 </body>
 </html>
