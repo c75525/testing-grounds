@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Samuel Platten — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261006-1710">
+  <link rel="stylesheet" href="styles.css?v=20261007-1405">
 </head>
 <body data-splash-active="true">
   <section class="splash" aria-label="Portfolio welcome">
@@ -39,7 +39,7 @@
       <section id="freelance-page" class="content-page freelance-page" data-page="freelance" aria-label="Freelance projects" hidden>
         <div class="case-block">
           <article class="case-study load-item">
-            <div class="project-frame slideshow" aria-label="c75525.org mockups">
+            <div class="project-frame slideshow c75525-gallery" aria-label="c75525.org mockups">
               <img class="slide is-active" src="media/processed/c75525-mockup-960.webp" srcset="media/processed/c75525-mockup-960.webp 960w, media/processed/c75525-mockup-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="c75525.org laptop mockup">
               <img class="slide" src="media/processed/c75525-mock-page-960.webp" srcset="media/processed/c75525-mock-page-960.webp 960w, media/processed/c75525-mock-page-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="c75525.org page mockup">
               <div class="slide logo-animation-slide" aria-label="c75525.org animated logo mockup">
@@ -59,7 +59,7 @@
 
         <div class="case-block">
           <article class="case-study load-item">
-            <div class="project-frame slideshow" aria-label="samuelplatten.com mockup">
+            <div class="project-frame slideshow samuelplatten-gallery" aria-label="samuelplatten.com mockup">
               <img class="slide is-active" src="media/processed/samuelplatten.com-960.webp" srcset="media/processed/samuelplatten.com-960.webp 960w, media/processed/samuelplatten.com-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="samuelplatten.com website mockup">
             </div>
             <h2><a href="https://samuelplatten.com/">samuelplatten.com</a></h2>
@@ -73,8 +73,11 @@
 
         <div class="case-block">
           <article class="case-study load-item">
-            <div class="project-frame slideshow is-tall" aria-label="saia.center mockups">
-              <img class="slide is-active" src="media/processed/saia.center-960.webp" srcset="media/processed/saia.center-960.webp 960w, media/processed/saia.center-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="953" alt="saia.center mobile mockup">
+            <div class="project-frame slideshow is-tall saia-gallery" aria-label="saia.center mockups">
+              <picture class="slide phone-subject-slide is-active">
+                <source media="(max-width: 760px)" srcset="media/processed/saia-phone-960.webp 960w, media/processed/saia-phone-1600.webp 1600w" sizes="93vw">
+                <img class="slide-media" src="media/processed/saia.center-960.webp" srcset="media/processed/saia.center-960.webp 960w, media/processed/saia.center-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="953" alt="saia.center mobile mockup">
+              </picture>
               <img class="slide" src="media/processed/saia-poster-1-960.webp" srcset="media/processed/saia-poster-1-960.webp 960w, media/processed/saia-poster-1-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="S.A.I.A. poster mockup one">
               <img class="slide" src="media/processed/saia-poster-2-960.webp" srcset="media/processed/saia-poster-2-960.webp 960w, media/processed/saia-poster-2-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="900" alt="S.A.I.A. poster mockup two">
             </div>
@@ -124,8 +127,14 @@
           <article class="alcor-case load-item">
             <div class="alcor-media slideshow" aria-label="Alcor identity system mockups">
               <img class="slide is-active" src="media/processed/alcor-on-hover-960.webp" srcset="media/processed/alcor-on-hover-960.webp 960w, media/processed/alcor-on-hover-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor identity shown across three mobile screens">
-              <img class="slide" src="media/processed/alcor-colors-960.webp" srcset="media/processed/alcor-colors-960.webp 960w, media/processed/alcor-colors-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor color system on a mobile screen">
-              <img class="slide" src="media/processed/alcor-type-960.webp" srcset="media/processed/alcor-type-960.webp 960w, media/processed/alcor-type-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor typography system on a mobile screen">
+              <picture class="slide phone-subject-slide">
+                <source media="(max-width: 760px)" srcset="media/processed/alcor-colors-phone.webp">
+                <img class="slide-media" src="media/processed/alcor-colors-960.webp" srcset="media/processed/alcor-colors-960.webp 960w, media/processed/alcor-colors-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor color system on a mobile screen">
+              </picture>
+              <picture class="slide phone-subject-slide">
+                <source media="(max-width: 760px)" srcset="media/processed/alcor-type-phone.webp">
+                <img class="slide-media" src="media/processed/alcor-type-960.webp" srcset="media/processed/alcor-type-960.webp 960w, media/processed/alcor-type-1600.webp 1600w" sizes="(max-width: 760px) calc(100vw - 48px), 720px" width="1600" height="1200" alt="Alcor typography system on a mobile screen">
+              </picture>
             </div>
           </article>
           <aside class="case-context load-item"><p>I developed content pillars and calendars, designed social posts, and produced photography and infographics centered around the in‑house R&amp;D, community outreach, archival material, organizational history, and member stories.</p></aside>
@@ -168,6 +177,6 @@
       </section>
     </main>
   </div>
-  <script type="module" src="app.js?v=20261006-1651"></script>
+  <script type="module" src="app.js?v=20261007-1430"></script>
 </body>
 </html>

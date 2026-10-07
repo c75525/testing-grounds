@@ -383,9 +383,6 @@ h1 {
 }
 
 @media (max-width: 760px) {
-  .alcor-patience-row .alcor-media { aspect-ratio: 4 / 3; }
-  .alcor-patience-row .slide { transform: scale(1.3); }
-
   .slideshow-controls.is-revealed,
   .slideshow-controls:focus-within {
     pointer-events: auto;
@@ -800,6 +797,45 @@ body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-de
   }
 
   .inhouse-heading { margin-bottom: 0; text-align: center; }
+
+  /* Normalize visible subjects to the Patience tee's ≈93%-of-media mobile width. */
+  .project-frame.c75525-gallery { aspect-ratio: 16 / 9; }
+  .c75525-gallery > .slide:nth-child(1) { transform: translate(0, -7.2px) scale(1.150515); }
+  .c75525-gallery > .slide:nth-child(2) { transform: translate(0.2px, -4.7px) scale(1.125852); }
+  .c75525-gallery > .slide:nth-child(3) { transform: translate(-1px, 1.5px) scale(1.182517); }
+
+  .samuelplatten-gallery > .slide { transform: scale(1.238); }
+
+  .project-frame.saia-gallery { aspect-ratio: 0.522 / 1; }
+  .saia-gallery > .slide:nth-child(1) { transform: scale(4.398); }
+  .saia-gallery > .slide:nth-child(2) { transform: scale(1.971); }
+  .saia-gallery > .slide:nth-child(3) { transform: scale(1.924); }
+
+  #portfolio-alcor-logo { width: 93%; }
+
+  .alcor-identity-row .alcor-media { aspect-ratio: 0.53 / 1; }
+  .alcor-identity-row .slide:nth-child(1) { transform: scale(1.402); }
+  .alcor-identity-row .slide:nth-child(2),
+  .alcor-identity-row .slide:nth-child(3) { transform: scale(3.211); }
+
+  .alcor-patience-row .alcor-media { aspect-ratio: 4 / 3; }
+  .alcor-patience-row .slide { transform: scale(1.3); }
+
+  .alcor-social-row .photo-stack { aspect-ratio: 1.23 / 1; }
+  .alcor-social-row .stack-photo { height: 95%; }
+
+  .alcor-tour-row .alcor-media { aspect-ratio: 1.565 / 1; }
+  .alcor-tour-row .slide { transform: scale(1.468); }
+
+  .phone-subject-slide { transform: none !important; }
+  .phone-subject-slide .slide-media {
+    width: 93%;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -208,8 +208,8 @@ function updateSocialConnector() {
     startY = cardPoint.y - overlayRect.top;
   } else {
     const stackRect = socialStack.getBoundingClientRect();
-    startX = stackRect.left + stackRect.width / 2 + frontPhoto.offsetWidth / 2 - 8 - overlayRect.left;
-    startY = stackRect.top + stackRect.height / 2 + frontPhoto.offsetHeight / 2 - 8 - overlayRect.top;
+    startX = stackRect.left + stackRect.width / 2 + frontPhoto.offsetWidth / 2 - 54 - overlayRect.left;
+    startY = stackRect.top + stackRect.height / 2 + frontPhoto.offsetHeight / 2 - 42 - overlayRect.top;
   }
   if (!socialCaptionAnchor) {
     socialCaptionAnchor = innerWidth <= 760
@@ -225,24 +225,57 @@ function updateSocialConnector() {
   socialConnectorPath.setAttribute('d', `M${startX} ${startY}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
 }
 
+function connectorStubPoint(target, anchor, length = 1.5) {
+  const deltaX = target.x - anchor.x;
+  const deltaY = target.y - anchor.y;
+  const distance = Math.hypot(deltaX, deltaY) || 1;
+  return {
+    x: anchor.x + deltaX / distance * length,
+    y: anchor.y + deltaY / distance * length,
+  };
+}
+
 function animateSocialConnector() {
   cancelAnimationFrame(connectorDrawFrame);
   updateSocialConnector();
   if (!socialConnectorPath || reducedMotion.matches || !socialCaptionAnchor) return;
+  const initialTarget = socialConnectorPath.getPointAtLength(0);
+  const initialStub = connectorStubPoint(initialTarget, socialCaptionAnchor);
   const startedAt = performance.now();
   function draw(time) {
     updateSocialConnector();
     const target = socialConnectorPath.getPointAtLength(0);
+    const stub = connectorStubPoint(target, socialCaptionAnchor);
     const progress = Math.min(1, (time - startedAt) / 360);
     const easedProgress = progress * progress;
-    const movingX = socialCaptionAnchor.x + (target.x - socialCaptionAnchor.x) * easedProgress;
-    const movingY = socialCaptionAnchor.y + (target.y - socialCaptionAnchor.y) * easedProgress;
+    const movingX = stub.x + (target.x - stub.x) * easedProgress;
+    const movingY = stub.y + (target.y - stub.y) * easedProgress;
     socialConnectorPath.setAttribute('d', `M${movingX} ${movingY}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
     if (progress < 1) connectorDrawFrame = requestAnimationFrame(draw);
     else updateSocialConnector();
   }
-  socialConnectorPath.setAttribute('d', `M${socialCaptionAnchor.x} ${socialCaptionAnchor.y}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
+  socialConnectorPath.setAttribute('d', `M${initialStub.x} ${initialStub.y}L${socialCaptionAnchor.x} ${socialCaptionAnchor.y}`);
   connectorDrawFrame = requestAnimationFrame(draw);
+}
+
+function retractSocialConnector(duration = 240) {
+  cancelAnimationFrame(connectorFrame);
+  cancelAnimationFrame(connectorDrawFrame);
+  updateSocialConnector();
+  if (!socialConnectorPath || reducedMotion.matches || !socialCaptionAnchor) return;
+  const start = socialConnectorPath.getPointAtLength(0);
+  const anchor = { ...socialCaptionAnchor };
+  const stub = connectorStubPoint(start, anchor);
+  const startedAt = performance.now();
+  function retract(time) {
+    const progress = Math.min(1, (time - startedAt) / duration);
+    const easedProgress = progress * progress;
+    const movingX = start.x + (stub.x - start.x) * easedProgress;
+    const movingY = start.y + (stub.y - start.y) * easedProgress;
+    socialConnectorPath.setAttribute('d', `M${movingX} ${movingY}L${anchor.x} ${anchor.y}`);
+    if (progress < 1) connectorDrawFrame = requestAnimationFrame(retract);
+  }
+  connectorDrawFrame = requestAnimationFrame(retract);
 }
 
 function trackSocialConnector(duration = 500) {
@@ -255,16 +288,18 @@ function trackSocialConnector(duration = 500) {
   connectorFrame = requestAnimationFrame(track);
 }
 
-function clearSocialCaption(preserveConnector = false) {
+function clearSocialCaption(preserveConnector = false, preserveCopy = false) {
   cancelAnimationFrame(typewriterFrame);
-  cancelAnimationFrame(connectorDrawFrame);
-  if (!preserveConnector) socialCaptionAnchor = undefined;
-  if (socialCaptionCopy) {
+  if (!preserveConnector) {
+    cancelAnimationFrame(connectorDrawFrame);
+    socialCaptionAnchor = undefined;
+    socialConnectorPath?.removeAttribute('d');
+  }
+  if (socialCaptionCopy && !preserveCopy) {
     socialCaptionCopy.replaceChildren();
     socialCaptionCopy.style.removeProperty('min-height');
   }
-  if (socialCaptionLive) socialCaptionLive.textContent = '';
-  if (!preserveConnector) socialConnectorPath?.removeAttribute('d');
+  if (socialCaptionLive && !preserveCopy) socialCaptionLive.textContent = '';
 }
 
 function buildStableTypewriter(text) {
@@ -559,29 +594,28 @@ document.querySelectorAll('.photo-stack').forEach(stack => {
     if (shuffling) return;
     const frontPhoto = stack.querySelector(':scope > .stack-photo');
     if (!frontPhoto) return;
-    const preserveMobileConnector = !desktopGalleryInteraction.matches;
+    const freezeDuringShuffle = !desktopGalleryInteraction.matches;
     socialCaptionStarted = true;
-    socialConnectorFrozen = preserveMobileConnector;
-    clearSocialCaption(preserveMobileConnector);
+    if (freezeDuringShuffle && !reducedMotion.matches) retractSocialConnector();
+    socialConnectorFrozen = freezeDuringShuffle;
+    clearSocialCaption(freezeDuringShuffle, freezeDuringShuffle);
     if (reducedMotion.matches) {
       stack.append(frontPhoto);
-      renderFrontSocialCaption(preserveMobileConnector);
+      renderFrontSocialCaption(freezeDuringShuffle);
       socialConnectorFrozen = false;
-      if (preserveMobileConnector) updateSocialConnector();
-      else animateSocialConnector();
+      animateSocialConnector();
       return;
     }
     shuffling = true;
     stack.classList.add('is-shuffling');
-    if (!preserveMobileConnector) trackSocialConnector(320);
+    if (!freezeDuringShuffle) trackSocialConnector(320);
     setTimeout(() => {
       stack.append(frontPhoto);
       stack.classList.remove('is-shuffling');
       shuffling = false;
-      renderFrontSocialCaption(preserveMobileConnector);
+      renderFrontSocialCaption(freezeDuringShuffle);
       socialConnectorFrozen = false;
-      if (preserveMobileConnector) updateSocialConnector();
-      else animateSocialConnector();
+      animateSocialConnector();
     }, 260);
   });
 });
