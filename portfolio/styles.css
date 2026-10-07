@@ -355,6 +355,12 @@ h1 {
 }
 
 @media (min-width: 761px) {
+  .case-study:has(> .slideshow),
+  .alcor-case:has(> .slideshow) {
+    padding-bottom: 48px;
+    margin-bottom: -48px;
+  }
+
   .case-study:is(:hover, :focus-within) > .slideshow-controls,
   .alcor-case:is(:hover, :focus-within) > .slideshow-controls,
   .slideshow-controls:focus-within {
