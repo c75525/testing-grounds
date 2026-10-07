@@ -383,6 +383,9 @@ h1 {
 }
 
 @media (max-width: 760px) {
+  .alcor-patience-row .alcor-media { aspect-ratio: 4 / 3; }
+  .alcor-patience-row .slide { transform: scale(1.3); }
+
   .slideshow-controls.is-revealed,
   .slideshow-controls:focus-within {
     pointer-events: auto;
