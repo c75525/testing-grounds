@@ -698,7 +698,7 @@ body.is-loaded .inhouse-page.is-active .alcor-social-row .load-item { animation-
 body.is-loaded .inhouse-page.is-active .alcor-tour-row .load-item { animation-delay: 2100ms; }
 
 @keyframes slideshow-progress {
-  from { transform: scaleX(0); }
+  from { transform: scaleX(var(--slideshow-progress-start, 0)); }
   to { transform: scaleX(1); }
 }
 

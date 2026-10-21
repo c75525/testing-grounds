@@ -59,6 +59,7 @@ let selectedIndex = directoryEntries.findIndex(entry => entry.dataset.section ==
 let hoveredIndex = -1;
 const DIRECTORY_OFFSET = 12;
 const directorySprings = directoryEntries.map((_, index) => spring.create(index === selectedIndex ? DIRECTORY_OFFSET : 0));
+const slideshowControllers = new Map();
 let directorySpringFrame;
 let previousSpringTime;
 let alcorAnimationTimeout;
@@ -383,6 +384,11 @@ function activateSection(section, shouldScroll = true) {
       page.classList.add('is-active');
     }
   });
+  slideshowControllers.forEach((controller, slideshow) => {
+    const slideshowSection = slideshow.closest('.content-page')?.dataset.page;
+    if (slideshowSection === section) controller.resume();
+    else controller.pause();
+  });
   socialCaptionStarted = false;
   clearSocialCaption();
   if (section === 'inhouse') {
@@ -432,6 +438,9 @@ function startSlideshow(slideshow) {
 
   let activeIndex = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
   let advanceTimeout;
+  let advanceDeadline;
+  let remainingTime = SLIDE_INTERVAL;
+  let isPaused = !slideshow.closest('.content-page')?.classList.contains('is-active');
   let controlSpringFrame;
   let previousControlSpringTime;
   const controlSprings = controlButtons.map(() => spring.create(1));
@@ -493,11 +502,10 @@ function startSlideshow(slideshow) {
       else button.removeAttribute('aria-current');
       const fill = button.querySelector('.slideshow-control-fill');
       fill.style.animation = 'none';
-      if (active && !reducedMotion.matches) {
-        void fill.offsetWidth;
-        fill.style.animation = `slideshow-progress ${SLIDE_INTERVAL}ms linear forwards`;
-      }
+      fill.style.removeProperty('transform');
+      fill.style.removeProperty('--slideshow-progress-start');
     });
+    renderProgress();
     const actionLabel = desktopGalleryInteraction.matches
       ? 'Activate for the next slide.'
       : 'Use the controls below to select a slide.';
@@ -505,12 +513,55 @@ function startSlideshow(slideshow) {
     animateControlSprings();
   }
 
+  function renderProgress() {
+    if (reducedMotion.matches) return;
+    const fill = controlButtons[activeIndex]?.querySelector('.slideshow-control-fill');
+    if (!fill) return;
+    const progress = Math.min(1, Math.max(0, 1 - remainingTime / SLIDE_INTERVAL));
+    fill.style.animation = 'none';
+    fill.style.setProperty('--slideshow-progress-start', progress);
+    fill.style.transform = `scaleX(${progress})`;
+    if (!isPaused && remainingTime > 0) {
+      void fill.offsetWidth;
+      fill.style.animation = `slideshow-progress ${remainingTime}ms linear forwards`;
+    }
+  }
+
+  function captureRemainingTime() {
+    if (advanceTimeout === undefined) return;
+    remainingTime = Math.max(0, advanceDeadline - performance.now());
+    clearTimeout(advanceTimeout);
+    advanceTimeout = undefined;
+  }
+
   function scheduleAdvance() {
     clearTimeout(advanceTimeout);
-    if (!reducedMotion.matches) advanceTimeout = setTimeout(advance, SLIDE_INTERVAL);
+    advanceTimeout = undefined;
+    if (reducedMotion.matches || isPaused) return;
+    advanceDeadline = performance.now() + remainingTime;
+    advanceTimeout = setTimeout(() => {
+      advanceTimeout = undefined;
+      advance();
+    }, remainingTime);
+  }
+
+  function pause() {
+    if (isPaused) return;
+    captureRemainingTime();
+    isPaused = true;
+    renderProgress();
+  }
+
+  function resume() {
+    if (!isPaused) return;
+    isPaused = false;
+    renderProgress();
+    scheduleAdvance();
   }
 
   function showSlide(index) {
+    captureRemainingTime();
+    remainingTime = SLIDE_INTERVAL;
     activeIndex = index;
     syncSlideState();
     scheduleAdvance();
@@ -541,11 +592,13 @@ function startSlideshow(slideshow) {
     advance();
   });
   desktopGalleryInteraction.addEventListener('change', () => {
+    captureRemainingTime();
     syncFrameInteractionMode();
     syncSlideState();
     scheduleAdvance();
   });
 
+  slideshowControllers.set(slideshow, { pause, resume });
   syncFrameInteractionMode();
   syncSlideState();
   scheduleAdvance();
