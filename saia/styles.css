@@ -182,7 +182,8 @@ h1 {
   /* Header overlaps the tail of the cropped logo; bio clears the moderate canvas extension. */
   .content { position: relative; top: auto; left: auto; margin: clamp(3.5rem, 9vw, 5rem) auto 0; transform: none; }
   h1 { color: var(--text); font-size: clamp(3.75rem, 18.5vw, 5.2rem); text-shadow: var(--m3-elevation-1); }
-  .subtitle { font-size: clamp(1rem, 5vw, 1.35rem); }
+  .subtitle { position: relative; z-index: 3; font-size: clamp(1rem, 5vw, 1.35rem); }
+  .subtitle .text-band { padding-bottom: .3em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
