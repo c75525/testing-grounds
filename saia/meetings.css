@@ -129,6 +129,8 @@ html { scroll-behavior: auto; }
   transform-origin: left center;
   transition: none;
   will-change: transform;
+  animation: meeting-card-fade-up .55s cubic-bezier(.22, 1, .36, 1) both;
+  animation-delay: calc(var(--spiral-order, 0) * 55ms);
   font-family: inherit;
   text-align: left;
 }
@@ -158,4 +160,10 @@ html { scroll-behavior: auto; }
   .archive { padding-top: 8svh; }
   .meeting-scroller { height: 14.187vw; }
 }
-@media (prefers-reduced-motion: reduce) { .meeting-card { transition: none; } }
+@keyframes meeting-card-fade-up {
+  from { opacity: 0; translate: 0 1.25rem; }
+  to { opacity: 1; translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meeting-card { transition: none; animation: none; translate: none; }
+}
