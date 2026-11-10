@@ -251,6 +251,10 @@ function goTo(index) {
   snapFrame = requestAnimationFrame(tick);
 }
 cards.forEach((card, index) => {
+  card.addEventListener('click', () => {
+    goTo(index);
+    card.blur();
+  });
   card.addEventListener('keydown', event => {
     if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
