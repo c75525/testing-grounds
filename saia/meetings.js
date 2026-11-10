@@ -139,9 +139,8 @@ for (let number = 23; number >= 1; number -= 1) {
 }
 const cards = [...document.querySelectorAll('.meeting-card')];
 // Use the preserved archive images; 001–005 are temporary color placeholders.
-cards.forEach((card, index) => {
+cards.forEach(card => {
   card.dataset.arena = card.dataset.arena || arenaLinks[card.dataset.number] || '';
-  card.style.setProperty('--spiral-order', index);
   const art = card.querySelector('.archive-art');
   card.querySelectorAll('.archive-art').forEach((item, index) => { if (index > 0) item.remove(); });
   art.className = 'archive-art';
@@ -223,7 +222,11 @@ function render() {
     card.style.opacity = '1';
     // The archive viewport clips departing cards naturally at the page edge.
     card.style.pointerEvents = relative < -1 ? 'none' : 'auto';
-    card.style.zIndex = String(100 - Math.round(Math.abs(relative) * 10));
+    const distance = Math.abs(relative);
+    // Departing cards move toward the camera and must stay above the new focus.
+    card.style.zIndex = relative < 0
+      ? String(200 + Math.max(0, 100 - Math.round(distance * 10)))
+      : String(100 - Math.round(relative * 10));
   });
   select(selected);
 }

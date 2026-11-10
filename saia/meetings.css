@@ -139,13 +139,6 @@ html { scroll-behavior: auto; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  clip-path: inset(0 50% 0 50%);
-  animation: archive-image-reveal .8s cubic-bezier(.22, 1, .36, 1) both;
-  animation-delay: calc(var(--spiral-order, 0) * 55ms);
-}
-@keyframes archive-image-reveal {
-  from { clip-path: inset(0 50% 0 50%); }
-  to { clip-path: inset(0); }
 }
 .meeting-card--stack { display: flex; }
 .meeting-card--stack .archive-art--map { height: 72%; }
@@ -165,7 +158,4 @@ html { scroll-behavior: auto; }
   .archive { padding-top: 8svh; }
   .meeting-scroller { height: 14.187vw; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .meeting-card { transition: none; }
-  .meeting-card .archive-art img { animation: none; clip-path: inset(0); }
-}
+@media (prefers-reduced-motion: reduce) { .meeting-card { transition: none; } }
