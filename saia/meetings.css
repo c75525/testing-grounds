@@ -129,8 +129,7 @@ html { scroll-behavior: auto; }
   transform-origin: left center;
   transition: none;
   will-change: transform;
-  animation: meeting-card-fade-up .55s cubic-bezier(.22, 1, .36, 1) both;
-  animation-delay: calc(var(--spiral-order, 0) * 55ms);
+  /* Entrance is triggered by decoded image readiness, not stylesheet load. */
   font-family: inherit;
   text-align: left;
 }
@@ -160,10 +159,15 @@ html { scroll-behavior: auto; }
   .archive { padding-top: 8svh; }
   .meeting-scroller { height: 14.187vw; }
 }
+.meeting-card.is-entering:not(.is-revealed) { opacity: 0; }
+.meeting-card.is-entering.is-revealed {
+  animation: meeting-card-fade-up .65s cubic-bezier(.22, 1, .36, 1) both;
+}
 @keyframes meeting-card-fade-up {
   from { opacity: 0; translate: 0 1.25rem; }
   to { opacity: 1; translate: 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meeting-card { transition: none; animation: none; translate: none; }
+  .meeting-card.is-entering.is-revealed,
+  .meeting-card.is-entering:not(.is-revealed) { transition: none; animation: none; translate: none; opacity: 1; }
 }

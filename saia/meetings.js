@@ -141,7 +141,7 @@ const cards = [...document.querySelectorAll('.meeting-card')];
 // Use the preserved archive images; 001–005 are temporary color placeholders.
 cards.forEach((card, index) => {
   card.dataset.arena = card.dataset.arena || arenaLinks[card.dataset.number] || '';
-  card.style.setProperty('--spiral-order', index);
+  card.classList.add('is-entering');
   const art = card.querySelector('.archive-art');
   card.querySelectorAll('.archive-art').forEach((item, index) => { if (index > 0) item.remove(); });
   art.className = 'archive-art';
@@ -220,7 +220,7 @@ function render() {
     const relative = index - position;
     const [x, y, scale] = pose(relative);
     card.style.transform = `translate3d(${x * width}px, ${y * height}px, 0) scale(${scale})`;
-    card.style.opacity = '1';
+    // Entrance opacity is owned by CSS, independently of spiral transforms.
     // The archive viewport clips departing cards naturally at the page edge.
     card.style.pointerEvents = relative < -1 ? 'none' : 'auto';
     const distance = Math.abs(relative);
@@ -294,3 +294,20 @@ addEventListener('resize', () => {
 reducedMotion.addEventListener('change', scheduleRender);
 document.fonts.ready.then(scheduleRender);
 render();
+
+async function revealCards() {
+  // Start requests together, but reveal decoded artwork in depth order.
+  const ready = cards.map(card => {
+    const image = card.querySelector('img');
+    image.loading = 'eager';
+    return image.decode().catch(() => {});
+  });
+  await document.fonts.ready;
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  for (let index = 0; index < cards.length; index += 1) {
+    await ready[index];
+    cards[index].classList.add('is-revealed');
+    if (!reducedMotion.matches) await new Promise(resolve => setTimeout(resolve, 90));
+  }
+}
+revealCards();
