@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Social Anthropology Internet Archaeology." />
+  <title>S.A.I.A. — Social Anthropology Internet Archaeology</title>
+  <link rel="stylesheet" href="https://use.typekit.net/aut1aeg.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="site-shell">
+    <section class="logo-viewport" aria-label="Animated three-dimensional SAIA logo">
+      <canvas id="logo-canvas" aria-hidden="true"></canvas>
+      <div class="fallback" id="fallback" hidden>
+        <img src="./saia-logo.svg" alt="SAIA logo" />
+      </div>
+    </section>
+
+    <article class="content">
+      <header class="identity">
+        <div class="wordmark">
+          <canvas id="wordmark-logo-canvas" aria-hidden="true"></canvas>
+          <h1>S.A.I.A.</h1>
+          <p class="subtitle"><span class="text-band">Social Anthropology Internet Archaeology</span></p>
+        </div>
+      </header>
+      <div class="copy">
+        <p><span class="text-band">is a 501(c)(3) nonprofit organization dedicated to a deeper understanding of the internet.</span></p>
+        <p><span class="text-band">Programming includes, but is not limited to, open discussions, presentations, research sessions, film screenings, and workshops.</span></p>
+        <p><span class="text-band">The club meetings are held weekly at Smoothie Vortex from 6 to 9 PM.</span></p>
+      </div>
+    </article>
+
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <div class="bottom-nav__links">
+        <a class="bottom-nav__home" href="/" aria-label="Home"><img src="./house-icon.svg" alt="" /></a>
+        <a href="./meetings.html">Meetings</a>
+        <a href="#resources">Resources</a>
+        <a href="#about">About</a>
+        <a href="#manifesto">Manifesto</a>
+      </div>
+    </nav>
+  </main>
+
+  <noscript><p class="no-js">This site needs JavaScript to render the 3D mark.</p></noscript>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.181.1/build/three.module.js" } }
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

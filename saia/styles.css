@@ -1,0 +1,195 @@
+:root {
+  color-scheme: dark;
+  --canvas: #848484;
+  --text: #ffffff;
+  --content-width: min(78vw, 42rem);
+  --nav-height: clamp(3.75rem, 7vw, 5.5rem);
+  --content-left: 16.5vw;
+  --m3-elevation-1: 0 1px 2px rgb(0 0 0 / 30%), 0 1px 3px 1px rgb(0 0 0 / 15%);
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--canvas); }
+
+body {
+  min-width: 320px;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--text);
+  background: var(--canvas);
+  font-family: "aktiv-grotesk", Arial, sans-serif;
+  font-weight: 400;
+}
+
+.site-shell { position: relative; min-height: 100svh; isolation: isolate; }
+
+/* The scene has a transparent canvas and deliberately continues behind the content. */
+.logo-viewport {
+  position: relative;
+  height: clamp(29rem, 66svh, 51rem);
+  overflow: visible;
+  background: transparent;
+  z-index: 0;
+}
+
+#logo-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: calc(100% + clamp(11rem, 24vw, 23rem));
+  clip-path: inset(0 0 calc(100% - 100svh + var(--nav-height)) 0);
+  pointer-events: none;
+}
+
+.fallback { position: absolute; inset: 0; display: grid; place-items: center; }
+.fallback[hidden] { display: none; }
+.fallback img { width: min(70vw, 46rem); filter: brightness(0) invert(1); }
+
+.content {
+  position: absolute;
+  z-index: 2;
+  top: 40.5svh;
+  left: var(--content-left);
+  width: var(--content-width);
+  margin: 0;
+  padding: 0 0 clamp(3rem, 9vw, 7rem);
+  text-align: left;
+}
+
+.identity { margin: 0 0 clamp(1.2rem, 2.5vw, 1.8rem); }
+
+/* A synchronized canvas is masked to the wordmark's actual letterforms. */
+.wordmark { position: relative; isolation: isolate; width: fit-content; overflow: visible; }
+#wordmark-logo-canvas {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  pointer-events: none;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+}
+
+h1 {
+  width: fit-content;
+  margin: 0;
+  color: var(--text);
+  font-family: "aktiv-grotesk", Arial, sans-serif;
+  font-size: clamp(4.1rem, 9.1vw, 7.3rem);
+  font-weight: 700;
+  letter-spacing: -0.082em;
+  line-height: .79;
+  position: relative;
+  z-index: 1;
+  text-shadow: var(--m3-elevation-1);
+}
+
+.subtitle {
+  width: fit-content;
+  max-width: 100%;
+  margin: .3em 0 0;
+  color: var(--text);
+  /* Tied to the header's font size, so it scales with the visual header width. */
+  font-size: clamp(1.12rem, 2.5vw, 2rem);
+  font-weight: 400;
+  letter-spacing: -.04em;
+  line-height: 1.05;
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  max-width: 31rem;
+  color: var(--text);
+  font-size: clamp(.86rem, 1.15vw, 1.03rem);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.copy p { margin: 0 0 1.25em; }
+
+.text-band {
+  padding: 0 .14em;
+  background: var(--canvas);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.bottom-nav {
+  position: fixed;
+  z-index: 10;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--nav-height);
+  padding: 0 0 max(1rem, env(safe-area-inset-bottom));
+  background: var(--canvas);
+  font-family: "aktiv-grotesk", Arial, sans-serif;
+  font-size: clamp(.816rem, 1.02vw, 1.104rem);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.bottom-nav__links {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: clamp(1.1rem, 8vw, 10rem);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.bottom-nav a {
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+}
+
+.bottom-nav__home {
+  display: inline-grid;
+  place-items: center;
+  height: 1em;
+}
+.bottom-nav__home img {
+  display: block;
+  width: auto;
+  height: .72em;
+  filter: brightness(0) invert(1);
+}
+.bottom-nav a:hover { text-decoration: underline; text-underline-offset: .25em; }
+.bottom-nav__home:hover { text-decoration: none; opacity: .72; }
+.bottom-nav a:focus-visible { outline: 2px solid var(--text); outline-offset: .35rem; }
+
+.no-js { width: var(--content-width); margin: 2rem auto; }
+
+@media (max-width: 640px) {
+  :root { --content-width: min(84vw, 34rem); --content-left: 8vw; }
+  .logo-viewport { height: clamp(23rem, 52svh, 33rem); }
+  #logo-canvas { height: calc(100% + 9rem); }
+  .bottom-nav {
+    right: auto;
+    left: 50%;
+    width: var(--content-width);
+    padding-right: 0;
+    padding-left: 0;
+    transform: translateX(-50%);
+    font-size: clamp(.72rem, 3.36vw, .936rem);
+  }
+  .bottom-nav__links { width: 100%; justify-content: space-between; gap: 0; padding: 0; }
+  /* Header overlaps the tail of the cropped logo; bio clears the moderate canvas extension. */
+  .content { position: relative; top: auto; left: auto; margin: clamp(3.5rem, 9vw, 5rem) auto 0; transform: none; }
+  h1 { color: var(--text); font-size: clamp(3.75rem, 18.5vw, 5.2rem); text-shadow: var(--m3-elevation-1); }
+  .subtitle { font-size: clamp(1rem, 5vw, 1.35rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-viewport::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,155 @@
+:root {
+  color-scheme: dark;
+  --canvas: #848484;
+  --text: #ffffff;
+  --nav-height: clamp(3.75rem, 7vw, 5.5rem);
+}
+
+* { box-sizing: border-box; }
+html, body { min-width: 320px; min-height: 100%; margin: 0; background: var(--canvas); }
+body { color: var(--text); font-family: "aktiv-grotesk", Arial, sans-serif; font-weight: 400; }
+
+.meetings-page { min-height: 100svh; padding: clamp(2rem, 10vw, 12.5rem) 0 var(--nav-height); }
+.archive { width: min(78vw, 61rem); margin: 0 auto; }
+h1 { margin: 0 0 clamp(1.5rem, 3vw, 3rem); font-size: clamp(2rem, 3.7vw, 3.9rem); font-weight: 700; line-height: .9; text-transform: uppercase; }
+
+.meeting-scroller {
+  display: flex;
+  gap: clamp(1rem, 2vw, 2rem);
+  padding: 0 0 1.25rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: rgb(255 255 255 / 65%) transparent;
+  scrollbar-width: thin;
+}
+.meeting-scroller::-webkit-scrollbar { height: .45rem; }
+.meeting-scroller::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 65%); }
+.meeting-scroller::-webkit-scrollbar-track { background: transparent; }
+
+.meeting-card {
+  flex: 0 0 clamp(10rem, 17vw, 22rem);
+  min-height: clamp(8rem, 13vw, 16rem);
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.meeting-card:not(.is-selected) { opacity: .68; }
+.meeting-card:hover, .meeting-card:focus-visible, .meeting-card.is-selected { opacity: 1; transform: translateY(-.25rem); }
+.meeting-card:focus-visible { outline: 2px solid var(--text); outline-offset: .35rem; }
+.meeting-card__title {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  max-width: 100%;
+  padding: .16em .28em .2em;
+  color: var(--text);
+  background: rgb(132 132 132 / 88%);
+  font-size: clamp(.72rem, .9vw, 1rem);
+  font-weight: 400;
+  line-height: 1.1;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.meeting-card.is-selected .meeting-card__title,
+.meeting-card:hover .meeting-card__title,
+.meeting-card:focus-visible .meeting-card__title { opacity: 1; }
+.meeting-card--stack { flex-basis: clamp(12rem, 18vw, 23rem); display: flex; align-items: center; gap: .5rem; }
+
+.archive-art { display: block; width: 100%; height: 100%; overflow: hidden; background: #d9d7e3; }
+.archive-art--installation { position: relative; background: linear-gradient(115deg, #292521 0 20%, #e6cfb5 20% 49%, #6d171f 49% 76%, #332a25 76%); }
+.archive-art--installation::before { content: ""; position: absolute; inset: 8% 43% 0 8%; border: .5rem solid #242424; background: linear-gradient(135deg, #504338, #cbad89); }
+.archive-art__shape { position: absolute; right: 10%; bottom: -8%; width: 38%; height: 93%; border-radius: 46% 46% 10% 10%; background: #8c2028; transform: rotate(-8deg); }
+.archive-art--floral { background: radial-gradient(circle at 38% 32%, #e8e8e8 0 10%, transparent 11%), radial-gradient(circle at 52% 46%, #aab1b4 0 11%, transparent 12%), radial-gradient(circle at 67% 35%, #f3f4f2 0 9%, transparent 10%), linear-gradient(125deg, #20262a, #819196 55%, #272e31); }
+.archive-art--street { background: linear-gradient(100deg, #35241f 0 33%, #d15b30 34% 48%, #ee8d36 49% 70%, #4a2920 71%); }
+.archive-art--street::after { content: ""; display: block; width: 13%; height: 19%; margin: 54% auto 0; border-radius: 50%; background: #d43b25; box-shadow: 0 0 0 .2rem rgb(0 0 0 / 25%); }
+.archive-art--map { width: 68%; height: 72%; background: repeating-linear-gradient(0deg, transparent 0 1rem, rgb(110 121 130 / 30%) 1.1rem 1.2rem), repeating-linear-gradient(90deg, transparent 0 1.3rem, rgb(110 121 130 / 30%) 1.4rem 1.5rem), #ecede8; }
+.archive-art--contact-sheet { width: 49%; height: 38%; align-self: flex-start; margin-top: .4rem; background: repeating-linear-gradient(90deg, #151515 0 .7rem, #eee 0 .9rem 1.2rem), repeating-linear-gradient(0deg, transparent 0 .7rem, rgb(255 255 255 / 55%) .75rem .85rem), #333; }
+
+.meeting-detail { max-width: clamp(19rem, 32vw, 40rem); margin-top: .25rem; }
+.meeting-detail__description { margin: .55rem 0; font-size: clamp(.78rem, .9vw, .98rem); line-height: 1.25; }
+.meeting-detail__links { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; }
+.meeting-detail__link { color: var(--text); font-size: clamp(.74rem, .85vw, .92rem); }
+
+.bottom-nav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; height: var(--nav-height); padding: 0 0 max(1rem, env(safe-area-inset-bottom)); background: var(--canvas); font-size: clamp(.816rem, 1.02vw, 1.104rem); font-weight: 700; line-height: 1; text-transform: uppercase; }
+.bottom-nav__links { display: flex; align-items: end; justify-content: center; gap: clamp(1.1rem, 8vw, 10rem); height: 100%; margin: 0 auto; padding: 0 1rem; }
+.bottom-nav a { color: var(--text); text-align: center; text-decoration: none; }
+.bottom-nav a:hover, .bottom-nav a.is-active { text-decoration: underline; text-underline-offset: .25em; }
+.bottom-nav a:focus-visible { outline: 2px solid var(--text); outline-offset: .35rem; }
+.bottom-nav__home { display: inline-grid; place-items: center; height: 1em; }
+.bottom-nav__home img { display: block; width: auto; height: .72em; filter: brightness(0) invert(1); }
+.bottom-nav__home:hover { opacity: .72; text-decoration: none; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 640px) {
+  .meetings-page { padding-top: 4rem; }
+  .archive { width: min(84vw, 34rem); }
+  h1 { margin-bottom: 1.5rem; }
+  .meeting-scroller { gap: .85rem; margin-right: calc((100vw - 84vw) * -1); padding-right: 16vw; }
+  .meeting-card { flex-basis: 74vw; min-height: 52vw; }
+  .meeting-card--stack { flex-basis: 66vw; }
+  .meeting-detail { margin-top: 1rem; }
+  .bottom-nav { right: auto; left: 50%; width: min(84vw, 34rem); padding-right: 0; padding-left: 0; transform: translateX(-50%); font-size: clamp(.72rem, 3.36vw, .936rem); }
+  .bottom-nav__links { width: 100%; justify-content: space-between; gap: 0; padding: 0; }
+}
+
+/* Scroll-driven archive: native page scrollbar advances the winding image trail. */
+html { scroll-behavior: auto; }
+.meetings-page { position: relative; height: 340svh; padding: 0; }
+.archive {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  padding: clamp(2rem, 18svh, 14rem) 0 calc(var(--nav-height) + 1rem) 16.5vw;
+}
+.archive h1 { font-size: clamp(1.6rem, 2.4vw, 2.8rem); margin-bottom: 1.8rem; }
+.meeting-scroller {
+  position: relative;
+  display: block;
+  overflow: visible;
+  height: 14.187vw;
+  padding: 0;
+  margin: 0;
+}
+.meeting-card {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  width: 22.4vw;
+  height: auto;
+  aspect-ratio: 30 / 19;
+  min-height: 0;
+  transform-origin: left center;
+  transition: none;
+  will-change: transform;
+  font-family: inherit;
+  text-align: left;
+}
+.meeting-card:not(.is-selected) { opacity: 1; }
+.meeting-card .archive-art { height: 100%; box-shadow: 0 3px 9px rgb(0 0 0 / 25%); }
+.meeting-card--stack { display: flex; }
+.meeting-card--stack .archive-art--map { height: 72%; }
+.meeting-card--stack .archive-art--contact-sheet { height: 38%; }
+.meeting-card__title { text-transform: uppercase; transition: none; }
+.meeting-card:hover:not(.is-selected) .meeting-card__title { opacity: 0; }
+.meeting-detail { width: 22.4vw; max-width: none; margin-top: .8rem; }
+.meeting-detail__description { font-size: clamp(.78rem, .9vw, 1rem); }
+@media (max-width: 640px) {
+  .archive { padding: 18svh 0 calc(var(--nav-height) + 1rem) 8vw; }
+  .archive h1 { font-size: 1.8rem; }
+  .meeting-scroller { height: 48vw; }
+  .meeting-card { width: 76vw; height: 48vw; min-height: 0; }
+  .meeting-detail { width: 76vw; }
+}
+@media (max-height: 520px) and (min-width: 641px) {
+  .archive { padding-top: 8svh; }
+  .meeting-scroller { height: 14.187vw; }
+}
+@media (prefers-reduced-motion: reduce) { .meeting-card { transition: none; } }
