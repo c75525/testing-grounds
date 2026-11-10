@@ -10,19 +10,19 @@
 
 * { box-sizing: border-box; }
 
-html { background: var(--canvas); }
+html { background: var(--canvas); overflow: hidden; }
 
 body {
   min-width: 320px;
   margin: 0;
-  overflow-x: hidden;
+  overflow: hidden;
   color: var(--text);
   background: var(--canvas);
   font-family: "aktiv-grotesk", Arial, sans-serif;
   font-weight: 400;
 }
 
-.site-shell { position: relative; min-height: 100svh; isolation: isolate; }
+.site-shell { position: relative; height: 100svh; overflow: hidden; isolation: isolate; }
 
 /* The scene has a transparent canvas and deliberately continues behind the content. */
 .logo-viewport {
