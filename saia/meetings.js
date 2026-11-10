@@ -149,7 +149,8 @@ cards.forEach(card => {
   art.style.backgroundPosition = 'center';
   art.replaceChildren();
 });
-page.style.height = `${100 + (cards.length - 1) * 65}svh`; 
+// Keep the composition fixed in the viewport; gestures and wheel input drive the archive.
+page.style.height = '100svh';
 const detail = document.querySelector('.meeting-detail');
 const description = detail.querySelector('.meeting-detail__description');
 const arenaLink = detail.querySelector('.meeting-detail__arena-link');
@@ -160,9 +161,9 @@ let queued = false;
 
 // Square Jump-style discrete navigation: one adjacent item, 550ms cubic easing.
 let settledStep = 0;
+let position = 0;
 let isSnapping = false;
 let snapFrame;
-let settleTimer;
 let touchStartY = null;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const cubicInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -206,11 +207,7 @@ function select(index) {
 }
 function render() {
   queued = false;
-  const distance = Math.max(1, page.offsetHeight - innerHeight);
-  const progress = Math.max(0, Math.min(cards.length - 1,
-    (scrollY - page.offsetTop) / distance * (cards.length - 1)));
-  const selected = Math.round(progress);
-  const position = reducedMotion.matches ? selected : progress;
+  const selected = clamp(Math.round(position), 0, cards.length - 1);
   const width = cards[0].offsetWidth;
   const height = cards[0].offsetHeight;
   cards.forEach((card, index) => {
@@ -230,20 +227,18 @@ function scheduleRender() {
 function goTo(index) {
   if (isSnapping) return;
   const target = clamp(index, 0, cards.length - 1);
-  const distance = Math.max(1, page.offsetHeight - innerHeight);
-  const targetY = page.offsetTop + distance * target / (cards.length - 1);
-  const startY = scrollY;
-  if (Math.abs(targetY - startY) < 1) { settledStep = target; return; }
+  const start = position;
+  if (Math.abs(target - start) < 0.001) { settledStep = target; return; }
   const duration = reducedMotion.matches ? 0 : 550;
   const started = performance.now();
-  clearTimeout(settleTimer);
   isSnapping = true;
   function tick(now) {
     const t = duration ? clamp((now - started) / duration, 0, 1) : 1;
-    scrollTo(0, startY + (targetY - startY) * cubicInOut(t));
+    position = start + (target - start) * cubicInOut(t);
     render();
     if (t < 1) snapFrame = requestAnimationFrame(tick);
     else {
+      position = target;
       settledStep = target;
       isSnapping = false;
     }
@@ -269,25 +264,18 @@ addEventListener('wheel', event => {
 addEventListener('touchstart', event => {
   touchStartY = event.touches.length === 1 ? event.touches[0].clientY : null;
 }, { passive: true });
+addEventListener('touchmove', event => {
+  if (touchStartY !== null) event.preventDefault();
+}, { passive: false });
 addEventListener('touchend', event => {
   if (touchStartY === null || !event.changedTouches.length) return;
   const delta = touchStartY - event.changedTouches[0].clientY;
   touchStartY = null;
   if (Math.abs(delta) > 30) goTo(settledStep + Math.sign(delta));
 }, { passive: true });
-addEventListener('scroll', () => {
-  scheduleRender();
-  if (isSnapping || touchStartY !== null) return;
-  clearTimeout(settleTimer);
-  settleTimer = setTimeout(() => {
-    const distance = Math.max(1, page.offsetHeight - innerHeight);
-    goTo(Math.round((scrollY - page.offsetTop) / distance * (cards.length - 1)));
-  }, 160);
-}, { passive: true });
 addEventListener('resize', () => {
   cancelAnimationFrame(snapFrame);
   isSnapping = false;
-  clearTimeout(settleTimer);
   scheduleRender();
 });
 reducedMotion.addEventListener('change', scheduleRender);
