@@ -9,7 +9,7 @@
 .directory-row.is-highlighted::before, .directory-row.is-selected::before { opacity: 1; }
 .folder-button[aria-expanded="true"] { transform: translateX(calc(var(--nudge) * 5)); }
 .folder-button[aria-expanded="true"]::before { content: '∨'; opacity: 1; }
-.directory-row:focus-visible { outline: 1px solid #e1dee8; outline-offset: 3px; }
+.directory-row:focus { outline: none; }
 .folder-items { margin: .2rem 0 .5rem 70px; padding: 0; list-style: none; }
 .folder-items li { animation: file-row-in 320ms ease-in both; animation-delay: calc(var(--order) * 55ms); }
 .folder-empty { font-size: .8rem; color: #e1dee8; margin: .5rem 0 .5rem 70px; }
