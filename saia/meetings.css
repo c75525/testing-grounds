@@ -134,6 +134,7 @@ html { scroll-behavior: auto; }
 }
 .meeting-card:not(.is-selected) { opacity: 1; }
 .meeting-card .archive-art { height: 100%; box-shadow: 0 3px 9px rgb(0 0 0 / 25%); }
+.meeting-card .archive-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .meeting-card--stack { display: flex; }
 .meeting-card--stack .archive-art--map { height: 72%; }
 .meeting-card--stack .archive-art--contact-sheet { height: 38%; }

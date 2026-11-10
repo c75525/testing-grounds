@@ -144,10 +144,15 @@ cards.forEach(card => {
   const art = card.querySelector('.archive-art');
   card.querySelectorAll('.archive-art').forEach((item, index) => { if (index > 0) item.remove(); });
   art.className = 'archive-art';
-  art.style.backgroundImage = `url("./assets/meetings/${card.dataset.number}.png")`;
-  art.style.backgroundSize = 'cover';
-  art.style.backgroundPosition = 'center';
+  art.style.backgroundImage = '';
   art.replaceChildren();
+  const image = document.createElement('img');
+  image.src = `./assets/meetings/optimized/${card.dataset.number}.webp`;
+  image.alt = `Meeting ${card.dataset.number} artwork`;
+  image.decoding = 'async';
+  image.loading = card.dataset.number === '027' ? 'eager' : 'lazy';
+  image.fetchPriority = card.dataset.number === '027' ? 'high' : 'auto';
+  art.append(image);
 });
 // Keep the composition fixed in the viewport; gestures and wheel input drive the archive.
 page.style.height = '100svh';
@@ -246,7 +251,6 @@ function goTo(index) {
   snapFrame = requestAnimationFrame(tick);
 }
 cards.forEach((card, index) => {
-  card.addEventListener('click', () => goTo(index));
   card.addEventListener('keydown', event => {
     if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
