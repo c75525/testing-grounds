@@ -139,8 +139,9 @@ for (let number = 23; number >= 1; number -= 1) {
 }
 const cards = [...document.querySelectorAll('.meeting-card')];
 // Use the preserved archive images; 001–005 are temporary color placeholders.
-cards.forEach(card => {
+cards.forEach((card, index) => {
   card.dataset.arena = card.dataset.arena || arenaLinks[card.dataset.number] || '';
+  card.style.setProperty('--spiral-order', index);
   const art = card.querySelector('.archive-art');
   card.querySelectorAll('.archive-art').forEach((item, index) => { if (index > 0) item.remove(); });
   art.className = 'archive-art';
