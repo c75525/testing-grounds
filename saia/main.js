@@ -180,19 +180,21 @@ try {
       const immediate = skipEntrance || reduceMotion.matches;
       const trace = immediate ? 1 : unit(elapsed / traceDuration);
       const fill = immediate ? 1 : unit((elapsed - traceDuration) / fillDuration);
-      // Keep the final perspective and depth throughout the entrance.
-      const opacity = ease(fill);
+      // Grow depth from the traced center plane without changing perspective.
+      const depth = Math.max(.001, ease(fill));
       for (const line of outlines) {
         line.geometry.setDrawRange(0, Math.floor(trace * line.geometry.attributes.position.count));
-        line.visible = fill < 1;
+        line.scale.z = .001;
+        line.visible = fill === 0;
       }
-      outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - opacity;
       for (const mesh of meshes) {
         mesh.visible = fill > 0;
+        mesh.scale.z = depth;
       }
+      // Faces stay fully opaque: the reveal is geometric extrusion, not a fade.
       for (const material of [...baseMaterials, ...wordmarkMaterials]) {
-        material.transparent = fill < 1;
-        material.opacity = opacity;
+        material.transparent = false;
+        material.opacity = 1;
       }
       if (fill === 1) {
         entranceFinished = true;
