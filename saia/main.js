@@ -58,7 +58,7 @@ try {
   let entranceStarted = null;
   let entranceFinished = false;
   const traceDuration = 1.5;
-  const extrudeDuration = 1.5;
+  const fillDuration = 1.5;
   const ease = t => t * t * (3 - 2 * t);
   const unit = t => Math.max(0, Math.min(1, t));
 
@@ -179,29 +179,27 @@ try {
       const elapsed = (performance.now() - entranceStarted) / 1000;
       const immediate = skipEntrance || reduceMotion.matches;
       const trace = immediate ? 1 : unit(elapsed / traceDuration);
-      const extrusion = immediate ? 1 : unit((elapsed - traceDuration) / extrudeDuration);
-      const depth = ease(extrusion);
-      yawGroup.rotation.y = THREE.MathUtils.degToRad(-45) * depth;
+      const fill = immediate ? 1 : unit((elapsed - traceDuration) / fillDuration);
+      // Keep the final perspective and depth throughout the entrance.
+      const opacity = ease(fill);
       for (const line of outlines) {
         line.geometry.setDrawRange(0, Math.floor(trace * line.geometry.attributes.position.count));
-        line.scale.z = Math.max(.001, depth);
-        line.visible = extrusion < 1;
+        line.visible = fill < 1;
       }
-      outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - unit(extrusion * 2);
+      outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - opacity;
       for (const mesh of meshes) {
-        mesh.visible = extrusion > 0;
-        mesh.scale.z = Math.max(.001, depth);
+        mesh.visible = fill > 0;
       }
       for (const material of [...baseMaterials, ...wordmarkMaterials]) {
-        material.transparent = extrusion < 1;
-        material.opacity = unit(extrusion * 4);
+        material.transparent = fill < 1;
+        material.opacity = opacity;
       }
-      if (isPlaying && extrusion > 0) spinGroup.rotation.z += rotationSpeed * delta;
-      if (extrusion === 1) {
+      if (fill === 1) {
         entranceFinished = true;
         canvas.dataset.entrance = 'complete';
-      } else canvas.dataset.entrance = extrusion > 0 ? 'extrude' : 'trace';
-    } else if (entranceFinished && isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
+      } else canvas.dataset.entrance = fill > 0 ? 'fill' : 'trace';
+    }
+    if (entranceStarted !== null && isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
     renderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = wordmarkMaterials;
     for (const line of outlines) line.material = maskedOutlineMaterial;
