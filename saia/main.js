@@ -48,6 +48,15 @@ try {
     new THREE.MeshBasicMaterial({ color: 0x3e3e3e }),
   ];
   const meshes = [];
+  const outlines = [];
+  const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true });
+  const maskedOutlineMaterial = new THREE.LineBasicMaterial({ color: 0x4d4d4d, transparent: true });
+  let entranceStarted = null;
+  let entranceFinished = false;
+  const traceDuration = 1.5;
+  const extrudeDuration = 1.5;
+  const ease = t => t * t * (3 - 2 * t);
+  const unit = t => Math.max(0, Math.min(1, t));
 
   const loader = new SVGLoader();
   loader.load('./saia-logo.svg', (data) => {
@@ -65,7 +74,21 @@ try {
         geometry.computeBoundingBox();
         const size = geometry.boundingBox.getSize(new THREE.Vector3());
         const isCenterCylinder = Math.max(size.x, size.y) < 100;
-        (isCenterCylinder ? centerGroup : spinGroup).add(mesh);
+        const group = isCenterCylinder ? centerGroup : spinGroup;
+        group.add(mesh);
+        // Trace only SVG contours, never triangulation edges across the face.
+        for (const contour of [shape, ...shape.holes]) {
+          const points = contour.getSpacedPoints(320);
+          points.push(points[0].clone());
+          const lineGeometry = new THREE.BufferGeometry().setFromPoints(
+            points.map(point => new THREE.Vector3(point.x, point.y, 0))
+          );
+          lineGeometry.setDrawRange(0, 0);
+          const line = new THREE.Line(lineGeometry, outlineMaterial);
+          outlines.push(line);
+          group.add(line);
+        }
+        mesh.visible = false;
       }
     }
 
@@ -83,6 +106,12 @@ try {
       mesh.geometry.scale(scale, scale, scale);
       mesh.geometry.computeBoundingBox();
     }
+    for (const line of outlines) {
+      line.geometry.translate(-center.x, -center.y, -center.z);
+      line.geometry.rotateX(Math.PI);
+      line.geometry.scale(scale, scale, scale);
+    }
+    entranceStarted = performance.now();
   }, undefined, (error) => {
     console.error('Unable to load the SVG.', error);
     fallback.hidden = false;
@@ -141,11 +170,38 @@ try {
   const clock = new THREE.Clock();
   const render = () => {
     const delta = Math.min(clock.getDelta(), 0.05);
-    if (isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
+    if (entranceStarted !== null && !entranceFinished) {
+      const elapsed = (performance.now() - entranceStarted) / 1000;
+      const trace = reduceMotion.matches ? 1 : unit(elapsed / traceDuration);
+      const extrusion = reduceMotion.matches ? 1 : unit((elapsed - traceDuration) / extrudeDuration);
+      const depth = ease(extrusion);
+      yawGroup.rotation.y = THREE.MathUtils.degToRad(-45) * depth;
+      for (const line of outlines) {
+        line.geometry.setDrawRange(0, Math.floor(trace * line.geometry.attributes.position.count));
+        line.scale.z = Math.max(.001, depth);
+        line.visible = extrusion < 1;
+      }
+      outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - unit(extrusion * 2);
+      for (const mesh of meshes) {
+        mesh.visible = extrusion > 0;
+        mesh.scale.z = Math.max(.001, depth);
+      }
+      for (const material of [...baseMaterials, ...wordmarkMaterials]) {
+        material.transparent = extrusion < 1;
+        material.opacity = unit(extrusion * 4);
+      }
+      if (isPlaying && extrusion > 0) spinGroup.rotation.z += rotationSpeed * delta;
+      if (extrusion === 1) {
+        entranceFinished = true;
+        canvas.dataset.entrance = 'complete';
+      } else canvas.dataset.entrance = extrusion > 0 ? 'extrude' : 'trace';
+    } else if (entranceFinished && isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
     renderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = wordmarkMaterials;
+    for (const line of outlines) line.material = maskedOutlineMaterial;
     wordmarkRenderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = baseMaterials;
+    for (const line of outlines) line.material = outlineMaterial;
     requestAnimationFrame(render);
   };
   render();
