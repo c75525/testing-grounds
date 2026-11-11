@@ -9,6 +9,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const mobileViewport = window.matchMedia('(max-width: 640px)');
 const rotationSpeed = 0.06;
 let isPlaying = !reduceMotion.matches;
+// Session storage survives page navigation/reloads without suppressing future visits forever.
+const entranceKey = 'saia-logo-entrance-played';
+let skipEntrance = false;
+try { skipEntrance = sessionStorage.getItem(entranceKey) === '1'; } catch { /* Storage may be disabled. */ }
 
 try {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -112,6 +116,7 @@ try {
       line.geometry.scale(scale, scale, scale);
     }
     entranceStarted = performance.now();
+    try { sessionStorage.setItem(entranceKey, '1'); } catch { /* Keep rendering if storage is unavailable. */ }
   }, undefined, (error) => {
     console.error('Unable to load the SVG.', error);
     fallback.hidden = false;
@@ -172,8 +177,9 @@ try {
     const delta = Math.min(clock.getDelta(), 0.05);
     if (entranceStarted !== null && !entranceFinished) {
       const elapsed = (performance.now() - entranceStarted) / 1000;
-      const trace = reduceMotion.matches ? 1 : unit(elapsed / traceDuration);
-      const extrusion = reduceMotion.matches ? 1 : unit((elapsed - traceDuration) / extrudeDuration);
+      const immediate = skipEntrance || reduceMotion.matches;
+      const trace = immediate ? 1 : unit(elapsed / traceDuration);
+      const extrusion = immediate ? 1 : unit((elapsed - traceDuration) / extrudeDuration);
       const depth = ease(extrusion);
       yawGroup.rotation.y = THREE.MathUtils.degToRad(-45) * depth;
       for (const line of outlines) {
