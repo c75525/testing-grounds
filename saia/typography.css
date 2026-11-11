@@ -1,0 +1,38 @@
+/* Shared trial type scale, November 10. Loaded after page styles. */
+:root {
+  --type-page-title: clamp(1.75rem, calc(1.5rem + .8vw), 2.5rem);
+  --type-body: clamp(.9375rem, calc(.9rem + .12vw), 1rem);
+  --type-ui: clamp(.8125rem, calc(.79rem + .08vw), .875rem);
+}
+.archive h1, #files-title { font-size: var(--type-page-title); line-height: 1.1; }
+.copy, .meeting-detail__description, .preview-caption { font-size: var(--type-body); line-height: 1.5; }
+.meeting-card__title, .meeting-detail__link, .directory-row, .bottom-nav { font-size: var(--type-ui); }
+.meeting-detail__link, .directory-row { line-height: 1.4; }
+.preview-caption { font-family: "aktiv-grotesk", Arial, sans-serif; font-style: italic; font-weight: 400; }
+.meeting-detail { width: clamp(20rem, 28vw, 34rem); }
+@media (max-width: 640px) {
+  /* Reserve real space for the body instead of clipping it below a tall hero. */
+  .logo-viewport { height: 32svh; }
+  .content { position: absolute; top: 32svh; left: 8vw; width: 84vw; margin: 0; padding: 0; }
+  .identity { margin-bottom: 1rem; }
+  .copy p { margin-bottom: .75em; }
+  .archive { padding-top: 7svh; }
+  .meeting-detail { width: 84vw; }
+  .meeting-detail__description { margin: .5rem 0; }
+  .archive h1 { margin-bottom: 1.1rem; }
+  .preview-caption { width: 100%; }
+}
+@media (max-width: 640px) and (max-height: 700px) {
+  .logo-viewport { height: 18svh; }
+  .content { top: 18svh; }
+  .identity { margin-bottom: .75rem; }
+  .archive { padding-top: 3svh; }
+  .meeting-scroller, .meeting-card { height: 23svh; }
+  .meeting-card { width: 62vw; }
+  .meeting-detail { margin-top: .6rem; }
+  .directory-panel { top: 4%; height: 43%; }
+  .file-preview { top: 51%; }
+}
+@media (min-width: 641px) and (max-width: 1000px) {
+  .meeting-detail { width: 42vw; }
+}
