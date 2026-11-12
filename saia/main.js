@@ -168,6 +168,7 @@ try {
   new ResizeObserver(resize).observe(wordmark);
   resize();
   document.fonts.ready.then(resize);
+  addEventListener('saia:layout-fit', resize);
 
   reduceMotion.addEventListener('change', (event) => {
     isPlaying = !event.matches;

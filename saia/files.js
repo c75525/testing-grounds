@@ -10,6 +10,44 @@ let openFolder = null;
 let highlighted = null;
 let selected = null;
 let generation = 0;
+const maxWindowSize = 8;
+let windowSize = maxWindowSize;
+function fitWindow() {
+  if (openFolder === null) return;
+  const list = document.querySelector(`#folder-${openFolder}`);
+  const row = list.querySelector('.file-button');
+  if (!row) return;
+  const scale = new DOMMatrix(getComputedStyle(directory).transform).a;
+  const top = list.getBoundingClientRect().top;
+  const bottom = Math.min(directory.getBoundingClientRect().bottom, document.querySelector('.bottom-nav').getBoundingClientRect().top - 16);
+  const rowHeight = row.offsetHeight * scale;
+  // Reserve both end indicators; fewer than eight entries on short viewports.
+  windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((bottom - top - 44 * scale) / rowHeight)));
+  updateWindow(openFolder, windowStarts.get(openFolder) || 0);
+  if (highlighted?.classList.contains('file-button') && Number(highlighted.dataset.parent) === openFolder) revealRow(highlighted);
+}
+const windowStarts = new Map();
+function updateWindow(folderIndex, start) {
+  const list = document.querySelector(`#folder-${folderIndex}`);
+  const items = [...list.querySelectorAll('.file-button')];
+  const first = Math.max(0, Math.min(Math.max(0, items.length - windowSize), start));
+  windowStarts.set(folderIndex, first);
+  items.forEach((row, index) => {
+    row.parentElement.hidden = index < first || index >= first + windowSize;
+    row.parentElement.style.setProperty('--order', Math.max(0, index - first));
+  });
+  list.querySelector('[data-direction="up"]').hidden = first === 0;
+  list.querySelector('[data-direction="down"]').hidden = first + windowSize >= items.length;
+  positionConnector();
+}
+function revealRow(row) {
+  if (!row?.classList.contains('file-button')) return;
+  const folderIndex = Number(row.dataset.parent);
+  const index = Number(row.dataset.index);
+  const first = windowStarts.get(folderIndex) || 0;
+  if (index < first) updateWindow(folderIndex, index);
+  else if (index >= first + windowSize) updateWindow(folderIndex, index - windowSize + 1);
+}
 const rows = () => [...directory.querySelectorAll('.directory-row')];
 function updateStage() {
   const page = document.querySelector('.files-page');
@@ -17,6 +55,7 @@ function updateStage() {
   page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
 }
 function highlight(row, focus = false) {
+  revealRow(row);
   highlighted?.classList.remove('is-highlighted');
   highlighted = row;
   row?.classList.add('is-highlighted');
@@ -41,7 +80,7 @@ function positionConnector() {
   const target = preview.getBoundingClientRect();
   const parent = document.querySelector('.files-page').getBoundingClientRect();
   const viewport = directory.getBoundingClientRect();
-  connector.style.visibility = label.top < viewport.top || label.bottom > viewport.bottom ? 'hidden' : 'visible';
+  connector.style.visibility = selected.closest('[hidden]') || label.top < viewport.top || label.bottom > viewport.bottom ? 'hidden' : 'visible';
   connector.style.left = `${label.right - parent.left + 8}px`;
   connector.style.top = `${label.top + label.height / 2 - parent.top}px`;
   connector.style.width = `${Math.max(0, target.left - label.right - 24)}px`;
@@ -103,6 +142,16 @@ function openItem(row, item) {
 function renderDirectory() {
   updateStage();
   directory.scrollTop = 0;
+  if (reduced.matches) requestAnimationFrame(fitWindow);
+  // Preserve folder buttons so their chevrons can transition between states.
+  if (directory.children.length) {
+    FILES_DATA.forEach((folder, folderIndex) => {
+      directory.querySelector(`[data-folder="${folderIndex}"]`).setAttribute('aria-expanded', String(openFolder === folderIndex));
+      document.querySelector(`#folder-${folderIndex}`).hidden = openFolder !== folderIndex;
+      updateWindow(folderIndex, windowStarts.get(folderIndex) || 0);
+    });
+    return;
+  }
   directory.replaceChildren();
   FILES_DATA.forEach((folder, folderIndex) => {
     const section = document.createElement('section');
@@ -117,6 +166,8 @@ function renderDirectory() {
     button.addEventListener('click', () => {
       clearPreview();
       openFolder = openFolder === folderIndex ? null : folderIndex;
+      windowStarts.set(folderIndex, 0);
+      windowSize = maxWindowSize;
       renderDirectory();
       highlight(directory.querySelector(`[data-folder="${folderIndex}"]`), true);
     });
@@ -132,6 +183,8 @@ function renderDirectory() {
       row.type = 'button';
       row.className = 'directory-row file-button';
       row.textContent = item.label;
+      row.dataset.parent = folderIndex;
+      row.dataset.index = index;
       row.setAttribute('aria-pressed', 'false');
       row.addEventListener('click', () => showPreview(row, item));
       row.addEventListener('keydown', event => {
@@ -148,7 +201,27 @@ function renderDirectory() {
       empty.style.fontSize = '.8rem';
       list.append(empty);
     }
+    for (const direction of ['up', 'down']) {
+      const control = document.createElement('li');
+      control.className = 'list-more';
+      control.dataset.direction = direction;
+      const arrow = document.createElement('button');
+      arrow.type = 'button';
+      arrow.className = 'list-more-button';
+      arrow.textContent = direction === 'up' ? '↑' : '↓';
+      arrow.setAttribute('aria-label', direction === 'up' ? 'Previous items' : 'More items');
+      arrow.addEventListener('click', () => {
+        const start = windowStarts.get(folderIndex) || 0;
+        updateWindow(folderIndex, start + (direction === 'up' ? -windowSize : windowSize));
+        const next = list.querySelector(`.file-button[data-index="${windowStarts.get(folderIndex)}"]`);
+        highlight(next, true);
+        status.textContent = `Showing items ${windowStarts.get(folderIndex) + 1}–${Math.min(folder.items.length, windowStarts.get(folderIndex) + windowSize)} of ${folder.items.length}.`;
+      });
+      control.append(arrow);
+      if (direction === 'up') list.prepend(control); else list.append(control);
+    }
     section.append(list); directory.append(section);
+    updateWindow(folderIndex, windowStarts.get(folderIndex) || 0);
   });
   rows().forEach(row => {
     row.tabIndex = -1;
@@ -158,7 +231,8 @@ function renderDirectory() {
   });
 }
 directory.addEventListener('keydown', event => {
-  const visible = rows().filter(row => !row.closest('[hidden]'));
+  // Include windowed-out items in keyboard order, but not closed folders' items.
+  const visible = rows().filter(row => row.classList.contains('folder-button') || Number(row.dataset.parent) === openFolder);
   const index = visible.indexOf(highlighted);
   if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
     event.preventDefault();
@@ -179,8 +253,11 @@ addEventListener('keydown', event => {
   }
 });
 directory.addEventListener('scroll', positionConnector, { passive: true });
-directory.addEventListener('transitionend', positionConnector);
-addEventListener('resize', positionConnector);
+directory.addEventListener('transitionend', event => {
+  positionConnector();
+  if (event.target === directory && event.propertyName === 'transform') fitWindow();
+});
+addEventListener('resize', () => { positionConnector(); fitWindow(); });
 document.fonts.ready.then(positionConnector);
 renderDirectory();
 highlight(rows()[0], true);
