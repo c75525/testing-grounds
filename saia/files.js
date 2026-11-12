@@ -11,6 +11,11 @@ let highlighted = null;
 let selected = null;
 let generation = 0;
 const rows = () => [...directory.querySelectorAll('.directory-row')];
+function updateStage() {
+  const page = document.querySelector('.files-page');
+  page.classList.toggle('is-folder-overview', openFolder === null);
+  page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
+}
 function highlight(row, focus = false) {
   highlighted?.classList.remove('is-highlighted');
   highlighted = row;
@@ -28,6 +33,7 @@ function clearPreview() {
   selected = null;
   preview.hidden = true;
   connector.classList.remove('is-drawing');
+  updateStage();
 }
 function positionConnector() {
   if (!selected || preview.hidden) return;
@@ -40,12 +46,17 @@ function positionConnector() {
   connector.style.top = `${label.top + label.height / 2 - parent.top}px`;
   connector.style.width = `${Math.max(0, target.left - label.right - 24)}px`;
 }
-function showPreview(row, item) {
+async function showPreview(row, item) {
+  const wasBrowsing = selected === null;
   clearPreview();
   selected = row;
   row.classList.add('is-selected');
   row.setAttribute('aria-pressed', 'true');
   const token = generation;
+  updateStage();
+  if (wasBrowsing && !reduced.matches) await new Promise(resolve => setTimeout(resolve, 720));
+  if (token !== generation) return;
+  row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   previewLink.href = item.url;
   previewLink.setAttribute('aria-label', `Open ${item.label} in a new tab`);
   previewImage.src = './assets/files/placeholder.svg';
@@ -85,11 +96,12 @@ function showPreview(row, item) {
   setTimeout(type, 750);
 }
 function openItem(row, item) {
-  if (selected === row) window.open(item.url, '_blank', 'noopener,noreferrer');
-  else showPreview(row, item);
+  if (selected === row) {
+    if (!preview.hidden) window.open(item.url, '_blank', 'noopener,noreferrer');
+  } else showPreview(row, item);
 }
 function renderDirectory() {
-  document.querySelector('.files-page').classList.toggle('is-folder-overview', openFolder === null);
+  updateStage();
   directory.scrollTop = 0;
   directory.replaceChildren();
   FILES_DATA.forEach((folder, folderIndex) => {

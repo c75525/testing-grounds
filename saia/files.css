@@ -4,6 +4,7 @@
 #directory { height: calc(100% - 3.8rem); overflow: auto; scrollbar-width: thin; scrollbar-color: #e1dee8 transparent; padding: .25rem 1rem 1rem 1.2rem; margin-left: -1.2rem; }
 #directory { transform-origin: 1.2rem 0; transform: translate(0, 0) scale(1); transition: transform 700ms cubic-bezier(.22, 1.22, .36, 1); }
 .files-page.is-folder-overview #directory { height: auto; overflow: visible; transform: translate(8vw, 4svh) scale(3); }
+.files-page.is-folder-browsing #directory { transform: translate(3vw, 1svh) scale(2); height: calc((58svh - 4rem) / 2); }
 .files-page.is-folder-overview .folder { margin-bottom: .6rem; }
 .files-page.is-folder-overview .folder-button { max-width: none; white-space: nowrap; --nudge: 3.333px; }
 .folder { margin-bottom: 1.5rem; }
@@ -36,6 +37,9 @@
   #files-title { font-size: 1.5rem; margin-bottom: 1rem; }
   #directory { height: calc(100% - 2.5rem); }
   .files-page.is-folder-overview #directory { transform: translate(3vw, 7svh) scale(3); }
+  .files-page.is-folder-browsing #directory { transform: translate(1vw, 2svh) scale(2); width: 45vw; height: calc((70svh - 5rem) / 2); }
+  .files-page.is-folder-browsing .folder-items { margin-left: 25px; }
+  .files-page.is-folder-browsing .directory-row { max-width: calc(100% - 20px); --nudge: 4px; }
   .directory-row { font-size: .85rem; }
   .file-preview { left: 8vw; right: 8vw; top: 51%; }
   .preview-link { aspect-ratio: 2.4; max-height: 24svh; }
