@@ -51,6 +51,10 @@ try {
     new THREE.MeshBasicMaterial({ color: 0x4d4d4d }),
     new THREE.MeshBasicMaterial({ color: 0x3e3e3e }),
   ];
+  const baseColors = baseMaterials.map(material => material.color.clone());
+  const wordmarkColors = wordmarkMaterials.map(material => material.color.clone());
+  const canvasColor = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim() || '#848484');
+  const headingColor = new THREE.Color(0xffffff);
   const meshes = [];
   const outlines = [];
   const depthOutlines = [];
@@ -147,12 +151,10 @@ try {
       line.parent.add(rear);
       depthOutlines.push(rear);
     }
-    // Keep fading faces from writing competing translucent depth layers.
-    for (const material of [...baseMaterials, ...wordmarkMaterials]) {
-      material.transparent = true;
-      material.depthWrite = false;
-      material.opacity = 0;
-    }
+    // Fade color, not transparency: opaque depth testing stays identical from
+    // the first fill frame through completion, including overlapping surfaces.
+    for (const material of baseMaterials) material.color.copy(canvasColor);
+    for (const material of wordmarkMaterials) material.color.copy(headingColor);
     entranceStarted = performance.now();
     try { sessionStorage.setItem(entranceKey, '1'); } catch { /* Keep rendering if storage is unavailable. */ }
   }, undefined, (error) => {
@@ -232,14 +234,8 @@ try {
       const opacity = ease(fill);
       outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - opacity;
       for (const mesh of meshes) mesh.visible = fill > 0;
-      for (const material of [...baseMaterials, ...wordmarkMaterials]) {
-        material.opacity = opacity;
-        if (fill === 1) {
-          material.transparent = false;
-          material.depthWrite = true;
-          material.needsUpdate = true;
-        }
-      }
+      baseMaterials.forEach((material, index) => material.color.lerpColors(canvasColor, baseColors[index], opacity));
+      wordmarkMaterials.forEach((material, index) => material.color.lerpColors(headingColor, wordmarkColors[index], opacity));
       if (fill === 1) {
         entranceFinished = true;
         canvas.dataset.entrance = 'complete';
