@@ -58,7 +58,7 @@ try {
   let entranceStarted = null;
   let entranceFinished = false;
   const traceDuration = 1.5;
-  const fillDuration = 1.5;
+  const fillDuration = 6;
   const ease = t => t * t * (3 - 2 * t);
   const unit = t => Math.max(0, Math.min(1, t));
 
@@ -109,6 +109,7 @@ try {
       mesh.geometry.rotateX(Math.PI);
       mesh.geometry.scale(scale, scale, scale);
       mesh.geometry.computeBoundingBox();
+      mesh.userData.frontZ = mesh.geometry.boundingBox.max.z;
     }
     for (const line of outlines) {
       line.geometry.translate(-center.x, -center.y, -center.z);
@@ -180,16 +181,17 @@ try {
       const immediate = skipEntrance || reduceMotion.matches;
       const trace = immediate ? 1 : unit(elapsed / traceDuration);
       const fill = immediate ? 1 : unit((elapsed - traceDuration) / fillDuration);
-      // Grow depth from the traced center plane without changing perspective.
+      // Anchor the front face; only the back grows along local negative Z.
       const depth = Math.max(.001, ease(fill));
       for (const line of outlines) {
         line.geometry.setDrawRange(0, Math.floor(trace * line.geometry.attributes.position.count));
-        line.scale.z = .001;
+        line.scale.z = 1;
         line.visible = fill === 0;
       }
       for (const mesh of meshes) {
         mesh.visible = fill > 0;
         mesh.scale.z = depth;
+        mesh.position.z = mesh.userData.frontZ * (1 - depth);
       }
       // Faces stay fully opaque: the reveal is geometric extrusion, not a fade.
       for (const material of [...baseMaterials, ...wordmarkMaterials]) {
