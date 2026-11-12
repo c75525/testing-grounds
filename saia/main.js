@@ -53,12 +53,15 @@ try {
   ];
   const meshes = [];
   const outlines = [];
-  const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true });
-  const maskedOutlineMaterial = new THREE.LineBasicMaterial({ color: 0x4d4d4d, transparent: true });
+  const depthOutlines = [];
+  // Wireframe strokes are an overlay, not coplanar depth-tested surfaces.
+  const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, depthTest: false, depthWrite: false });
+  const maskedOutlineMaterial = new THREE.LineBasicMaterial({ color: 0x4d4d4d, transparent: true, depthTest: false, depthWrite: false });
   let entranceStarted = null;
   let entranceFinished = false;
   const traceDuration = 1.5;
-  const fillDuration = 6;
+  const edgeDuration = 4.5;
+  const fillDuration = 1.5;
   const ease = t => t * t * (3 - 2 * t);
   const unit = t => Math.max(0, Math.min(1, t));
 
@@ -109,12 +112,46 @@ try {
       mesh.geometry.rotateX(Math.PI);
       mesh.geometry.scale(scale, scale, scale);
       mesh.geometry.computeBoundingBox();
-      mesh.userData.frontZ = mesh.geometry.boundingBox.max.z;
+      // Keep only longitudinal sharp edges, excluding face triangulation.
+      const edges = new THREE.EdgesGeometry(mesh.geometry, 25);
+      const positions = edges.attributes.position;
+      const segments = [];
+      for (let i = 0; i < positions.count; i += 2) {
+        const a = new THREE.Vector3().fromBufferAttribute(positions, i);
+        const b = new THREE.Vector3().fromBufferAttribute(positions, i + 1);
+        if (Math.abs(a.z - b.z) < .01) continue;
+        // Subdivide so the connecting stroke draws rather than appearing at once.
+        for (let step = 0; step < 32; step += 1) {
+          segments.push(a.clone().lerp(b, step / 32), a.clone().lerp(b, (step + 1) / 32));
+        }
+      }
+      edges.dispose();
+      if (segments.length) {
+        const geometry = new THREE.BufferGeometry().setFromPoints(segments);
+        geometry.setDrawRange(0, 0);
+        const ribs = new THREE.LineSegments(geometry, outlineMaterial);
+        ribs.renderOrder = 2;
+        mesh.parent.add(ribs);
+        depthOutlines.push(ribs);
+      }
     }
     for (const line of outlines) {
       line.geometry.translate(-center.x, -center.y, -center.z);
       line.geometry.rotateX(Math.PI);
       line.geometry.scale(scale, scale, scale);
+      line.renderOrder = 2;
+      const rear = new THREE.Line(line.geometry.clone(), outlineMaterial);
+      rear.geometry.translate(0, 0, -105 * scale);
+      rear.geometry.setDrawRange(0, 0);
+      rear.renderOrder = 2;
+      line.parent.add(rear);
+      depthOutlines.push(rear);
+    }
+    // Keep fading faces from writing competing translucent depth layers.
+    for (const material of [...baseMaterials, ...wordmarkMaterials]) {
+      material.transparent = true;
+      material.depthWrite = false;
+      material.opacity = 0;
     }
     entranceStarted = performance.now();
     try { sessionStorage.setItem(entranceKey, '1'); } catch { /* Keep rendering if storage is unavailable. */ }
@@ -181,36 +218,40 @@ try {
       const elapsed = (performance.now() - entranceStarted) / 1000;
       const immediate = skipEntrance || reduceMotion.matches;
       const trace = immediate ? 1 : unit(elapsed / traceDuration);
-      const fill = immediate ? 1 : unit((elapsed - traceDuration) / fillDuration);
-      // Anchor the front face; only the back grows along local negative Z.
-      const depth = Math.max(.001, ease(fill));
+      const edgeTrace = immediate ? 1 : unit((elapsed - traceDuration) / edgeDuration);
+      const fill = immediate ? 1 : unit((elapsed - traceDuration - edgeDuration) / fillDuration);
       for (const line of outlines) {
         line.geometry.setDrawRange(0, Math.floor(trace * line.geometry.attributes.position.count));
-        line.scale.z = 1;
-        line.visible = fill === 0;
+        line.visible = fill < 1;
       }
-      for (const mesh of meshes) {
-        mesh.visible = fill > 0;
-        mesh.scale.z = depth;
-        mesh.position.z = mesh.userData.frontZ * (1 - depth);
+      for (const line of depthOutlines) {
+        const count = Math.floor(edgeTrace * line.geometry.attributes.position.count);
+        line.geometry.setDrawRange(0, line.isLineSegments ? count - count % 2 : count);
+        line.visible = fill < 1;
       }
-      // Faces stay fully opaque: the reveal is geometric extrusion, not a fade.
+      const opacity = ease(fill);
+      outlineMaterial.opacity = maskedOutlineMaterial.opacity = 1 - opacity;
+      for (const mesh of meshes) mesh.visible = fill > 0;
       for (const material of [...baseMaterials, ...wordmarkMaterials]) {
-        material.transparent = false;
-        material.opacity = 1;
+        material.opacity = opacity;
+        if (fill === 1) {
+          material.transparent = false;
+          material.depthWrite = true;
+          material.needsUpdate = true;
+        }
       }
       if (fill === 1) {
         entranceFinished = true;
         canvas.dataset.entrance = 'complete';
-      } else canvas.dataset.entrance = fill > 0 ? 'fill' : 'trace';
+      } else canvas.dataset.entrance = fill > 0 ? 'fill' : edgeTrace > 0 ? 'edges' : 'trace';
     }
     if (entranceStarted !== null && isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
     renderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = wordmarkMaterials;
-    for (const line of outlines) line.material = maskedOutlineMaterial;
+    for (const line of [...outlines, ...depthOutlines]) line.material = maskedOutlineMaterial;
     wordmarkRenderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = baseMaterials;
-    for (const line of outlines) line.material = outlineMaterial;
+    for (const line of [...outlines, ...depthOutlines]) line.material = outlineMaterial;
     requestAnimationFrame(render);
   };
   render();

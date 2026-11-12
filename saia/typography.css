@@ -12,6 +12,8 @@
 @media (max-width: 640px) {
   /* Preserve original dimensions; shift only if text would meet navigation. */
   .content { transform: translateY(var(--home-fit, 0px)); }
+  .copy { isolation: isolate; }
+  .copy::before { content: ''; position: absolute; z-index: -1; top: -.35rem; bottom: -100svh; left: -8vw; width: 50vw; background: var(--canvas); pointer-events: none; }
   .archive { padding-top: max(1rem, calc(18svh - var(--meeting-fit, 0px))); }
   .preview-caption { width: 100%; }
 }
