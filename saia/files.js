@@ -18,7 +18,7 @@ function highlight(row, focus = false) {
   rows().forEach(item => { item.tabIndex = item === row ? 0 : -1; });
   if (focus && row) {
     row.focus({ preventScroll: true });
-    row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    if (openFolder !== null) row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 }
 function clearPreview() {
@@ -89,6 +89,8 @@ function openItem(row, item) {
   else showPreview(row, item);
 }
 function renderDirectory() {
+  document.querySelector('.files-page').classList.toggle('is-folder-overview', openFolder === null);
+  directory.scrollTop = 0;
   directory.replaceChildren();
   FILES_DATA.forEach((folder, folderIndex) => {
     const section = document.createElement('section');
@@ -165,6 +167,7 @@ addEventListener('keydown', event => {
   }
 });
 directory.addEventListener('scroll', positionConnector, { passive: true });
+directory.addEventListener('transitionend', positionConnector);
 addEventListener('resize', positionConnector);
 document.fonts.ready.then(positionConnector);
 renderDirectory();
