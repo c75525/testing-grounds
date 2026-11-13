@@ -261,13 +261,24 @@ cards.forEach((card, index) => {
     card.blur();
   });
   card.addEventListener('keydown', event => {
-    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+    if (!['Home', 'End'].includes(event.key)) return;
     event.preventDefault();
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? cards.length - 1
-      : Math.max(0, Math.min(cards.length - 1, index + (event.key === 'ArrowRight' ? 1 : -1)));
+    const next = event.key === 'Home' ? 0 : cards.length - 1;
     goTo(next);
     cards[next].focus({ preventScroll: true });
   });
+});
+// Arrow keys control the spiral from anywhere on the Meetings page:
+// left/down move toward the previous card; up/right move toward the next.
+addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+  const direction = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1
+    : ['ArrowUp', 'ArrowRight'].includes(event.key) ? 1 : 0;
+  if (!direction) return;
+  event.preventDefault();
+  const next = clamp(settledStep + direction, 0, cards.length - 1);
+  goTo(next);
+  cards[next].focus({ preventScroll: true });
 });
 addEventListener('wheel', event => {
   if (event.ctrlKey || Math.abs(event.deltaY) < 1) return;
