@@ -58,6 +58,7 @@ try {
   const meshes = [];
   const outlines = [];
   const depthOutlines = [];
+  const allOutlines = [];
   // Wireframe strokes are an overlay, not coplanar depth-tested surfaces.
   const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, depthTest: false, depthWrite: false });
   const maskedOutlineMaterial = new THREE.LineBasicMaterial({ color: 0x4d4d4d, transparent: true, depthTest: false, depthWrite: false });
@@ -151,6 +152,7 @@ try {
       line.parent.add(rear);
       depthOutlines.push(rear);
     }
+    allOutlines.push(...outlines, ...depthOutlines);
     // Fade color, not transparency: opaque depth testing stays identical from
     // the first fill frame through completion, including overlapping surfaces.
     for (const material of baseMaterials) material.color.copy(canvasColor);
@@ -198,6 +200,14 @@ try {
     wordmarkCanvas.style.left = `${sceneRect.left - wordmarkRect.left}px`;
     wordmarkCanvas.style.top = `${sceneRect.top - wordmarkRect.top}px`;
     updateWordmarkMask(sceneRect);
+    // This render is visible only inside the heading glyphs, not the full canvas.
+    const textRect = wordmarkText.getBoundingClientRect();
+    const x = Math.max(0, Math.floor(textRect.left - sceneRect.left - 2));
+    const y = Math.max(0, Math.floor(sceneRect.bottom - textRect.bottom - 2));
+    wordmarkRenderer.setScissor(x, y,
+      Math.max(0, Math.min(width - x, Math.ceil(textRect.width + 4))),
+      Math.max(0, Math.min(height - y, Math.ceil(textRect.height + 4))));
+    wordmarkRenderer.setScissorTest(true);
     camera.aspect = width / height;
     yawGroup.position.y = mobileViewport.matches ? -1.05 : -0.72;
     camera.position.y = 0;
@@ -238,16 +248,24 @@ try {
       wordmarkMaterials.forEach((material, index) => material.color.lerpColors(headingColor, wordmarkColors[index], opacity));
       if (fill === 1) {
         entranceFinished = true;
+        // Remove entrance-only geometry from idle scene traversal and GPU memory.
+        for (const line of allOutlines) {
+          line.removeFromParent();
+          line.geometry.dispose();
+        }
+        outlines.length = depthOutlines.length = allOutlines.length = 0;
+        outlineMaterial.dispose();
+        maskedOutlineMaterial.dispose();
         canvas.dataset.entrance = 'complete';
       } else canvas.dataset.entrance = fill > 0 ? 'fill' : edgeTrace > 0 ? 'edges' : 'trace';
     }
     if (entranceStarted !== null && isPlaying) spinGroup.rotation.z += rotationSpeed * delta;
     renderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = wordmarkMaterials;
-    for (const line of [...outlines, ...depthOutlines]) line.material = maskedOutlineMaterial;
+    for (const line of allOutlines) line.material = maskedOutlineMaterial;
     wordmarkRenderer.render(scene, camera);
     for (const mesh of meshes) mesh.material = baseMaterials;
-    for (const line of [...outlines, ...depthOutlines]) line.material = outlineMaterial;
+    for (const line of allOutlines) line.material = outlineMaterial;
     requestAnimationFrame(render);
   };
   render();
