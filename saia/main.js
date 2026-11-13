@@ -65,7 +65,7 @@ try {
   let entranceStarted = null;
   let entranceFinished = false;
   const traceDuration = 1.5;
-  const edgeDuration = 4.5;
+  const edgeDuration = 2;
   const fillDuration = 1.5;
   const ease = t => t * t * (3 - 2 * t);
   const unit = t => Math.max(0, Math.min(1, t));
