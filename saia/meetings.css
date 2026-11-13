@@ -61,7 +61,7 @@ h1 { margin: 0 0 clamp(1.5rem, 3vw, 3rem); font-size: clamp(2rem, 3.7vw, 3.9rem)
 .meeting-card:focus-visible .meeting-card__title { opacity: 1; }
 .meeting-card--stack { flex-basis: clamp(12rem, 18vw, 23rem); display: flex; align-items: center; gap: .5rem; }
 
-.archive-art { display: block; width: 100%; height: 100%; overflow: hidden; background: #d9d7e3; }
+.archive-art { display: block; width: 100%; height: 100%; overflow: hidden; background: transparent; }
 .archive-art--installation { position: relative; background: linear-gradient(115deg, #292521 0 20%, #e6cfb5 20% 49%, #6d171f 49% 76%, #332a25 76%); }
 .archive-art--installation::before { content: ""; position: absolute; inset: 8% 43% 0 8%; border: .5rem solid #242424; background: linear-gradient(135deg, #504338, #cbad89); }
 .archive-art__shape { position: absolute; right: 10%; bottom: -8%; width: 38%; height: 93%; border-radius: 46% 46% 10% 10%; background: #8c2028; transform: rotate(-8deg); }
@@ -159,15 +159,15 @@ html { scroll-behavior: auto; }
   .archive { padding-top: 8svh; }
   .meeting-scroller { height: 14.187vw; }
 }
-.meeting-card.is-entering:not(.is-revealed) { opacity: 0; }
+/* Hide even before JS runs: no placeholder/artwork flash on a cold load. */
+.meeting-card:not(.is-revealed) { opacity: 0; }
 .meeting-card.is-entering.is-revealed {
-  animation: meeting-card-fade-up .65s cubic-bezier(.22, 1, .36, 1) both;
+  animation: meeting-card-fade-up .95s cubic-bezier(.42, 0, .58, 1) both;
 }
 @keyframes meeting-card-fade-up {
-  from { opacity: 0; translate: 0 1.25rem; }
+  from { opacity: 0; translate: 0 .75rem; }
   to { opacity: 1; translate: 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meeting-card.is-entering.is-revealed,
-  .meeting-card.is-entering:not(.is-revealed) { transition: none; animation: none; translate: none; opacity: 1; }
+  .meeting-card.is-entering.is-revealed { transition: none; animation: none; translate: none; opacity: 1; }
 }

@@ -307,7 +307,7 @@ async function revealCards() {
   for (let index = 0; index < cards.length; index += 1) {
     await ready[index];
     cards[index].classList.add('is-revealed');
-    if (!reducedMotion.matches) await new Promise(resolve => setTimeout(resolve, 90));
+    if (!reducedMotion.matches) await new Promise(resolve => setTimeout(resolve, 140));
   }
 }
 revealCards();
