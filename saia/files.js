@@ -226,6 +226,10 @@ function renderDirectory() {
   rows().forEach(row => {
     row.tabIndex = -1;
     row.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') highlight(row); });
+    // Keep the keyboard cursor, but let pointer emphasis fade away on exit.
+    row.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse') row.classList.remove('is-highlighted');
+    });
     row.addEventListener('focus', () => highlight(row));
     row.addEventListener('transitionend', positionConnector);
   });
