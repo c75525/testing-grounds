@@ -7,21 +7,23 @@
   <title>Files — S.A.I.A.</title>
   <link rel="stylesheet" href="https://use.typekit.net/aut1aeg.css" />
   <link rel="stylesheet" href="./styles.css?v=nav-centered-2" />
-  <link rel="stylesheet" href="./files.css?v=raised-directory-7" />
-  <link rel="stylesheet" href="./typography.css?v=layout-restore-2" />
+  <link rel="stylesheet" href="./files.css?v=centered-composition-8" />
+  <link rel="stylesheet" href="./typography.css?v=balanced-layout-4" />
 </head>
 <body>
   <main class="files-page is-folder-overview">
+    <h1 id="files-title" class="visually-hidden">Files</h1>
+    <div class="files-layout">
     <section class="directory-panel" aria-labelledby="files-title">
-      <h1 id="files-title">Files</h1>
       <p class="visually-hidden" id="directory-help">Up and Down highlight entries. Enter opens a folder or previews an item. Enter again opens the previewed link. Escape closes the preview, then the folder.</p>
       <div id="directory" aria-describedby="directory-help"></div>
     </section>
-    <span class="preview-connector" aria-hidden="true"></span>
     <figure class="file-preview" hidden>
       <a class="preview-link" target="_blank" rel="noopener noreferrer"><img class="preview-image" alt="" /></a>
       <figcaption class="preview-caption"></figcaption>
     </figure>
+    </div>
+    <span class="preview-connector" aria-hidden="true"></span>
     <p class="visually-hidden" id="file-status" role="status"></p>
   </main>
   <nav class="bottom-nav" aria-label="Primary navigation">
@@ -34,6 +36,6 @@
     </div>
   </nav>
   <script src="./files-data.js?v=1"></script>
-  <script src="./files.js?v=aligned-markers-6"></script>
+  <script src="./files.js?v=centered-composition-8"></script>
 </body>
 </html>

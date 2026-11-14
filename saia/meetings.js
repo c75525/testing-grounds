@@ -230,6 +230,12 @@ function render() {
       : String(100 - Math.round(relative * 10));
   });
   select(selected);
+  // Center the foreground artwork + copy inside the navigation-safe viewport.
+  const archive = document.querySelector('.archive');
+  const nav = document.querySelector('.bottom-nav');
+  const detailGap = parseFloat(getComputedStyle(detail).marginTop);
+  const groupHeight = scroller.offsetHeight + detail.offsetHeight + detailGap;
+  archive.style.paddingTop = `${Math.max(24, (nav.getBoundingClientRect().top - groupHeight) / 2)}px`;
 }
 function scheduleRender() {
   if (!queued) { queued = true; requestAnimationFrame(render); }

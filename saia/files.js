@@ -12,19 +12,51 @@ let selected = null;
 let generation = 0;
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
+let layoutQueued = false;
+function scheduleLayout() {
+  if (layoutQueued) return;
+  layoutQueued = true;
+  requestAnimationFrame(() => { layoutQueued = false; fitWindow(); });
+}
 function fitWindow() {
-  if (openFolder === null) return;
-  const list = document.querySelector(`#folder-${openFolder}`);
-  const row = list.querySelector('.file-button');
-  if (!row) return;
-  const scale = new DOMMatrix(getComputedStyle(directory).transform).a;
-  const top = list.getBoundingClientRect().top;
-  const bottom = Math.min(directory.getBoundingClientRect().bottom, document.querySelector('.bottom-nav').getBoundingClientRect().top - 16);
-  const rowHeight = row.offsetHeight * scale;
-  // Reserve both end indicators; fewer than eight entries on short viewports.
-  windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((bottom - top - 44 * scale) / rowHeight)));
-  updateWindow(openFolder, windowStarts.get(openFolder) || 0);
-  if (highlighted?.classList.contains('file-button') && Number(highlighted.dataset.parent) === openFolder) revealRow(highlighted);
+  const page = document.querySelector('.files-page');
+  const panel = document.querySelector('.directory-panel');
+  const layout = document.querySelector('.files-layout');
+  const mobile = matchMedia('(max-width: 640px)').matches;
+  const style = getComputedStyle(page);
+  const gap = parseFloat(getComputedStyle(layout).gap);
+  let availableWidth = page.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  let availableHeight = page.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+  if (selected) {
+    if (mobile) availableHeight -= preview.offsetHeight + gap;
+    else availableWidth -= preview.offsetWidth + gap;
+  }
+  let scale = openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : selected ? 1 : 2;
+  scale = Math.min(scale, availableWidth / Math.max(1, directory.offsetWidth));
+  if (openFolder !== null) {
+    const list = document.querySelector(`#folder-${openFolder}`);
+    const items = [...list.querySelectorAll('.file-button')];
+    if (items.length) {
+      const rowHeight = items.find(row => !row.parentElement.hidden)?.offsetHeight || 27;
+      const visibleCount = items.filter(row => !row.parentElement.hidden).length;
+      const arrow = list.querySelector('.list-more-button');
+      const arrowStyle = getComputedStyle(arrow);
+      const arrowHeight = parseFloat(arrowStyle.lineHeight) + parseFloat(arrowStyle.paddingTop) + parseFloat(arrowStyle.paddingBottom);
+      const missingArrows = [...list.querySelectorAll('.list-more')].filter(row => row.hidden).length;
+      // Budget the entire directory, including sibling folders and both arrows.
+      const overhead = directory.scrollHeight - visibleCount * rowHeight + missingArrows * arrowHeight;
+      windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((availableHeight / scale - overhead) / rowHeight)));
+      updateWindow(openFolder, windowStarts.get(openFolder) || 0);
+      const current = selected || highlighted;
+      if (current?.classList.contains('file-button') && Number(current.dataset.parent) === openFolder) revealRow(current);
+    }
+  }
+  scale = Math.max(.1, Math.min(scale, availableHeight / Math.max(1, directory.scrollHeight)));
+  directory.style.setProperty('--directory-scale', scale);
+  panel.style.setProperty('--directory-width', `${directory.offsetWidth * scale}px`);
+  panel.style.setProperty('--directory-height', `${directory.scrollHeight * scale}px`);
+  page.classList.add('is-layout-ready');
+  positionConnector();
 }
 const windowStarts = new Map();
 function updateWindow(folderIndex, start) {
@@ -45,14 +77,16 @@ function revealRow(row) {
   const folderIndex = Number(row.dataset.parent);
   const index = Number(row.dataset.index);
   const first = windowStarts.get(folderIndex) || 0;
-  if (index < first) updateWindow(folderIndex, index);
-  else if (index >= first + windowSize) updateWindow(folderIndex, index - windowSize + 1);
+  if (index < first) { updateWindow(folderIndex, index); scheduleLayout(); }
+  else if (index >= first + windowSize) { updateWindow(folderIndex, index - windowSize + 1); scheduleLayout(); }
 }
 const rows = () => [...directory.querySelectorAll('.directory-row')];
 function updateStage() {
   const page = document.querySelector('.files-page');
   page.classList.toggle('is-folder-overview', openFolder === null);
   page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
+  page.classList.toggle('is-previewing', selected !== null);
+  scheduleLayout();
 }
 function highlight(row, focus = false) {
   revealRow(row);
@@ -62,7 +96,7 @@ function highlight(row, focus = false) {
   rows().forEach(item => { item.tabIndex = item === row ? 0 : -1; });
   if (focus && row) {
     row.focus({ preventScroll: true });
-    if (openFolder !== null) row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    // Visible rows are fitted as a group; don't scroll the fixed composition.
   }
 }
 function clearPreview() {
@@ -93,9 +127,6 @@ async function showPreview(row, item) {
   row.setAttribute('aria-pressed', 'true');
   const token = generation;
   updateStage();
-  if (wasBrowsing && !reduced.matches) await new Promise(resolve => setTimeout(resolve, 720));
-  if (token !== generation) return;
-  row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   previewLink.href = item.url;
   previewLink.setAttribute('aria-label', `Open ${item.label} in a new tab`);
   previewImage.src = './assets/files/placeholder.svg';
@@ -109,6 +140,9 @@ async function showPreview(row, item) {
   typed.setAttribute('aria-hidden', 'true');
   caption.replaceChildren(space, typed);
   caption.setAttribute('aria-label', item.description);
+  fitWindow();
+  if (wasBrowsing && !reduced.matches) await new Promise(resolve => setTimeout(resolve, 720));
+  if (token !== generation) return;
   preview.hidden = false;
   // Restart only the new preview, without moving its containing frame.
   previewLink.style.animation = 'none';
@@ -215,6 +249,7 @@ function renderDirectory() {
         updateWindow(folderIndex, start + (direction === 'up' ? -windowSize : windowSize));
         const next = list.querySelector(`.file-button[data-index="${windowStarts.get(folderIndex)}"]`);
         highlight(next, true);
+        scheduleLayout();
         status.textContent = `Showing items ${windowStarts.get(folderIndex) + 1}–${Math.min(folder.items.length, windowStarts.get(folderIndex) + windowSize)} of ${folder.items.length}.`;
       });
       control.append(arrow);
@@ -259,9 +294,12 @@ addEventListener('keydown', event => {
 directory.addEventListener('scroll', positionConnector, { passive: true });
 directory.addEventListener('transitionend', event => {
   positionConnector();
-  if (event.target === directory && event.propertyName === 'transform') fitWindow();
+  if (event.target === directory && event.propertyName === 'transform') positionConnector();
 });
-addEventListener('resize', () => { positionConnector(); fitWindow(); });
-document.fonts.ready.then(positionConnector);
+addEventListener('resize', scheduleLayout);
+document.querySelector('.directory-panel').addEventListener('transitionend', positionConnector);
+reduced.addEventListener('change', scheduleLayout);
+document.fonts.ready.then(scheduleLayout);
 renderDirectory();
+fitWindow();
 highlight(rows()[0], true);

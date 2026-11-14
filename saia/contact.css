@@ -4,7 +4,9 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: #e1dee8 transparent;
-  padding: clamp(2rem, 15svh, 8.5rem) 7.3vw 2rem 10.3vw;
+  display: grid;
+  align-items: safe center;
+  padding: clamp(1rem, 4svh, 2.5rem) 8vw;
 }
 .contact-layout {
   display: grid;
@@ -73,7 +75,7 @@
 #contact-status { margin: 0; font-size: .8125rem; line-height: 1.4; text-align: right; }
 .bottom-nav a.is-active { text-decoration: underline; text-underline-offset: .25em; }
 @media (max-width: 760px) {
-  .contact-page { padding: 5svh 8vw 2rem; }
+  .contact-page { padding: clamp(1rem, 4svh, 2.5rem) 8vw; }
   .contact-layout { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
   .contact-copy { max-width: 34rem; }
   .contact-form { gap: 1rem; }
