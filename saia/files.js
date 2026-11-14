@@ -12,51 +12,57 @@ let selected = null;
 let generation = 0;
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
-let layoutQueued = false;
-function scheduleLayout() {
-  if (layoutQueued) return;
-  layoutQueued = true;
-  requestAnimationFrame(() => { layoutQueued = false; fitWindow(); });
+let centerX = 0, centerY = 0, centerFrame = 0, centerUntil = 0;
+function requestCenter() {
+  centerUntil = performance.now() + (reduced.matches ? 0 : 850);
+  if (centerFrame) return;
+  function tick(now) {
+    const page = document.querySelector('.files-page');
+    const layout = document.querySelector('.files-layout');
+    const targets = [...directory.querySelectorAll('.directory-row, .list-more, .folder-items > li')]
+      .filter(el => !el.closest('[hidden]'));
+    if (selected) targets.push(preview);
+    const boxes = targets.map(el => el.getBoundingClientRect()).filter(rect => rect.width && rect.height);
+    if (boxes.length) {
+      const left = Math.min(...boxes.map(rect => rect.left));
+      const right = Math.max(...boxes.map(rect => rect.right));
+      const top = Math.min(...boxes.map(rect => rect.top));
+      const bottom = Math.max(...boxes.map(rect => rect.bottom));
+      const bounds = page.getBoundingClientRect();
+      centerX += bounds.left + bounds.width / 2 - (left + right) / 2;
+      centerY += bounds.top + bounds.height / 2 - (top + bottom) / 2;
+      layout.style.transform = `translate(${centerX}px, ${centerY}px)`;
+      page.classList.add('is-layout-ready');
+      positionConnector();
+    }
+    centerFrame = now < centerUntil ? requestAnimationFrame(tick) : 0;
+  }
+  centerFrame = requestAnimationFrame(tick);
 }
 function fitWindow() {
+  requestCenter();
+  if (openFolder === null) return;
+  const list = document.querySelector(`#folder-${openFolder}`);
+  const row = list.querySelector('.file-button');
+  if (!row) return;
+  const scale = selected ? 1 : 2;
   const page = document.querySelector('.files-page');
   const panel = document.querySelector('.directory-panel');
-  const layout = document.querySelector('.files-layout');
-  const mobile = matchMedia('(max-width: 640px)').matches;
-  const style = getComputedStyle(page);
-  const gap = parseFloat(getComputedStyle(layout).gap);
-  let availableWidth = page.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-  let availableHeight = page.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+  const items = [...list.querySelectorAll('.file-button')];
+  const rowHeight = items.find(item => !item.parentElement.hidden)?.offsetHeight || 27;
+  const visibleCount = items.filter(item => !item.parentElement.hidden).length;
+  const arrowStyle = getComputedStyle(list.querySelector('.list-more-button'));
+  const arrowHeight = parseFloat(arrowStyle.lineHeight) + parseFloat(arrowStyle.paddingTop) + parseFloat(arrowStyle.paddingBottom);
+  const missingArrows = [...list.querySelectorAll('.list-more')].filter(item => item.hidden).length;
+  const overhead = directory.scrollHeight - visibleCount * rowHeight + missingArrows * arrowHeight;
+  let available = page.clientHeight - 32;
   if (selected) {
-    if (mobile) availableHeight -= preview.offsetHeight + gap;
-    else availableWidth -= preview.offsetWidth + gap;
+    if (innerWidth <= 640) available = preview.offsetTop - panel.offsetTop - 20;
+    else available -= Math.max(0, panel.offsetTop - preview.offsetTop);
   }
-  let scale = openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : selected ? 1 : 2;
-  scale = Math.min(scale, availableWidth / Math.max(1, directory.offsetWidth));
-  if (openFolder !== null) {
-    const list = document.querySelector(`#folder-${openFolder}`);
-    const items = [...list.querySelectorAll('.file-button')];
-    if (items.length) {
-      const rowHeight = items.find(row => !row.parentElement.hidden)?.offsetHeight || 27;
-      const visibleCount = items.filter(row => !row.parentElement.hidden).length;
-      const arrow = list.querySelector('.list-more-button');
-      const arrowStyle = getComputedStyle(arrow);
-      const arrowHeight = parseFloat(arrowStyle.lineHeight) + parseFloat(arrowStyle.paddingTop) + parseFloat(arrowStyle.paddingBottom);
-      const missingArrows = [...list.querySelectorAll('.list-more')].filter(row => row.hidden).length;
-      // Budget the entire directory, including sibling folders and both arrows.
-      const overhead = directory.scrollHeight - visibleCount * rowHeight + missingArrows * arrowHeight;
-      windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((availableHeight / scale - overhead) / rowHeight)));
-      updateWindow(openFolder, windowStarts.get(openFolder) || 0);
-      const current = selected || highlighted;
-      if (current?.classList.contains('file-button') && Number(current.dataset.parent) === openFolder) revealRow(current);
-    }
-  }
-  scale = Math.max(.1, Math.min(scale, availableHeight / Math.max(1, directory.scrollHeight)));
-  directory.style.setProperty('--directory-scale', scale);
-  panel.style.setProperty('--directory-width', `${directory.offsetWidth * scale}px`);
-  panel.style.setProperty('--directory-height', `${directory.scrollHeight * scale}px`);
-  page.classList.add('is-layout-ready');
-  positionConnector();
+  windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((available / scale - overhead) / rowHeight)));
+  updateWindow(openFolder, windowStarts.get(openFolder) || 0);
+  if (highlighted?.classList.contains('file-button') && Number(highlighted.dataset.parent) === openFolder) revealRow(highlighted);
 }
 const windowStarts = new Map();
 function updateWindow(folderIndex, start) {
@@ -71,14 +77,15 @@ function updateWindow(folderIndex, start) {
   list.querySelector('[data-direction="up"]').hidden = first === 0;
   list.querySelector('[data-direction="down"]').hidden = first + windowSize >= items.length;
   positionConnector();
+  requestCenter();
 }
 function revealRow(row) {
   if (!row?.classList.contains('file-button')) return;
   const folderIndex = Number(row.dataset.parent);
   const index = Number(row.dataset.index);
   const first = windowStarts.get(folderIndex) || 0;
-  if (index < first) { updateWindow(folderIndex, index); scheduleLayout(); }
-  else if (index >= first + windowSize) { updateWindow(folderIndex, index - windowSize + 1); scheduleLayout(); }
+  if (index < first) updateWindow(folderIndex, index);
+  else if (index >= first + windowSize) updateWindow(folderIndex, index - windowSize + 1);
 }
 const rows = () => [...directory.querySelectorAll('.directory-row')];
 function updateStage() {
@@ -86,7 +93,7 @@ function updateStage() {
   page.classList.toggle('is-folder-overview', openFolder === null);
   page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
   page.classList.toggle('is-previewing', selected !== null);
-  scheduleLayout();
+  requestAnimationFrame(fitWindow);
 }
 function highlight(row, focus = false) {
   revealRow(row);
@@ -96,7 +103,7 @@ function highlight(row, focus = false) {
   rows().forEach(item => { item.tabIndex = item === row ? 0 : -1; });
   if (focus && row) {
     row.focus({ preventScroll: true });
-    // Visible rows are fitted as a group; don't scroll the fixed composition.
+    // Center the whole composition instead of scrolling individual rows.
   }
 }
 function clearPreview() {
@@ -249,7 +256,6 @@ function renderDirectory() {
         updateWindow(folderIndex, start + (direction === 'up' ? -windowSize : windowSize));
         const next = list.querySelector(`.file-button[data-index="${windowStarts.get(folderIndex)}"]`);
         highlight(next, true);
-        scheduleLayout();
         status.textContent = `Showing items ${windowStarts.get(folderIndex) + 1}–${Math.min(folder.items.length, windowStarts.get(folderIndex) + windowSize)} of ${folder.items.length}.`;
       });
       control.append(arrow);
@@ -294,12 +300,9 @@ addEventListener('keydown', event => {
 directory.addEventListener('scroll', positionConnector, { passive: true });
 directory.addEventListener('transitionend', event => {
   positionConnector();
-  if (event.target === directory && event.propertyName === 'transform') positionConnector();
+  if (event.target === directory && event.propertyName === 'transform') fitWindow();
 });
-addEventListener('resize', scheduleLayout);
-document.querySelector('.directory-panel').addEventListener('transitionend', positionConnector);
-reduced.addEventListener('change', scheduleLayout);
-document.fonts.ready.then(scheduleLayout);
+addEventListener('resize', () => { positionConnector(); fitWindow(); });
+document.fonts.ready.then(fitWindow);
 renderDirectory();
-fitWindow();
-highlight(rows()[0], true);
+requestAnimationFrame(() => { document.querySelector('.files-page').classList.add('is-layout-ready'); highlight(rows()[0], true); });
