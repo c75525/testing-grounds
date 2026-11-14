@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Support S.A.I.A., ask a question, or get in touch about collaborating." />
+  <title>Contact — S.A.I.A.</title>
+  <link rel="stylesheet" href="https://use.typekit.net/aut1aeg.css" />
+  <link rel="stylesheet" href="./styles.css?v=nav-centered-2" />
+  <link rel="stylesheet" href="./typography.css?v=full-mobile-fill-3" />
+  <link rel="stylesheet" href="./contact.css?v=1" />
+</head>
+<body>
+  <main class="contact-page" aria-labelledby="contact-title" tabindex="-1">
+    <div class="contact-layout">
+      <section class="contact-copy">
+        <h1 id="contact-title">Contact</h1>
+        <p>S.A.I.A. is a nonprofit 501(c)(3) organization.</p>
+        <p>We’re looking for donors who want<br class="desktop-break" /> to push S.A.I.A. forward.</p>
+        <p>With proper funding, S.A.I.A. would like to be able to facilitate art shows, in-depth research and even more ambitious programming.<br />Without help from donors, we have limited movement as a platform in doing what we do.</p>
+        <p class="list-intro">For free, we currently:</p>
+        <ul>
+          <li>host weekly meetings and discussions</li>
+          <li>provide creative workshops</li>
+          <li>conduct contemporary art research in an underrepresented city</li>
+          <li>champion internet art &amp; culture<br />(think Rhizome, Internet Archive, etc …)</li>
+        </ul>
+        <p>Interested in helping? Have other questions? Want to collaborate?<br />Feel free to contact us.</p>
+      </section>
+      <form class="contact-form" aria-label="Contact S.A.I.A." aria-describedby="contact-status">
+        <div class="contact-names">
+          <div class="contact-field">
+            <label for="first-name">First name</label>
+            <input id="first-name" name="firstName" autocomplete="given-name" maxlength="100" required />
+          </div>
+          <div class="contact-field">
+            <label for="last-name">Last name</label>
+            <input id="last-name" name="lastName" autocomplete="family-name" maxlength="100" required />
+          </div>
+        </div>
+        <div class="contact-field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required />
+        </div>
+        <div class="contact-field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="8" maxlength="10000" required></textarea>
+        </div>
+        <div class="contact-actions">
+          <button class="contact-send" type="button" disabled aria-describedby="contact-status">Send</button>
+          <p id="contact-status" role="status">Sending is not connected yet.</p>
+        </div>
+      </form>
+    </div>
+  </main>
+  <nav class="bottom-nav" aria-label="Primary navigation">
+    <div class="bottom-nav__links">
+      <a class="bottom-nav__home" href="./index.html" aria-label="Home"><img src="./house-icon.svg" alt="" /></a>
+      <a href="./meetings.html">Meetings</a>
+      <a href="./files.html">Files</a>
+      <a href="#manifesto">Manifesto</a>
+      <a class="is-active" href="./contact.html" aria-current="page">Contact</a>
+    </div>
+  </nav>
+  <script src="./contact.js?v=1"></script>
+</body>
+</html>
