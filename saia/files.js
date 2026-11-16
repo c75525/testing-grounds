@@ -13,9 +13,16 @@ let generation = 0;
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
 let centerX = 0, centerY = 0, centerFrame = 0, centerUntil = 0;
+let introInterrupted = false;
+function stopIntro() {
+  introInterrupted = true;
+  document.body.classList.remove('files-intro-ready');
+}
 function requestCenter() {
   centerUntil = performance.now() + (reduced.matches ? 0 : 850);
   if (centerFrame) return;
+  const started = performance.now();
+  const startX = centerX, startY = centerY;
   function tick(now) {
     const page = document.querySelector('.files-page');
     const layout = document.querySelector('.files-layout');
@@ -29,8 +36,15 @@ function requestCenter() {
       const top = Math.min(...boxes.map(rect => rect.top));
       const bottom = Math.max(...boxes.map(rect => rect.bottom));
       const bounds = page.getBoundingClientRect();
-      centerX += bounds.left + bounds.width / 2 - (left + right) / 2;
-      centerY += bounds.top + bounds.height / 2 - (top + bottom) / 2;
+      // Ease the outer box toward its new center rather than teleporting it
+      // when an expanded list changes the composition's bounds.
+      const immediate = reduced.matches || !page.classList.contains('is-layout-ready') || now >= centerUntil;
+      const t = immediate ? 1 : Math.min(1, (now - started) / 700);
+      const blend = t * t * (3 - 2 * t);
+      const targetX = centerX + bounds.left + bounds.width / 2 - (left + right) / 2;
+      const targetY = centerY + bounds.top + bounds.height / 2 - (top + bottom) / 2;
+      centerX = startX + (targetX - startX) * blend;
+      centerY = startY + (targetY - startY) * blend;
       layout.style.transform = `translate(${centerX}px, ${centerY}px)`;
       page.classList.add('is-layout-ready');
       positionConnector();
@@ -181,6 +195,13 @@ function openItem(row, item) {
   } else showPreview(row, item);
 }
 function renderDirectory() {
+  const previous = new Map([...directory.children].map(section => {
+    const transform = getComputedStyle(section).transform;
+    const y = transform === 'none' ? 0 : new DOMMatrix(transform).m42;
+    const top = section.offsetTop + y;
+    section.getAnimations().forEach(animation => animation.cancel());
+    return [section, top];
+  }));
   updateStage();
   directory.scrollTop = 0;
   if (reduced.matches) requestAnimationFrame(fitWindow);
@@ -191,6 +212,17 @@ function renderDirectory() {
       document.querySelector(`#folder-${folderIndex}`).hidden = openFolder !== folderIndex;
       updateWindow(folderIndex, windowStarts.get(folderIndex) || 0);
     });
+    fitWindow();
+    if (!reduced.matches) {
+      for (const [section, oldTop] of previous) {
+        const delta = oldTop - section.offsetTop;
+        if (Math.abs(delta) < .5) continue;
+        section.animate([
+          { transform: `translateY(${delta}px)` },
+          { transform: 'translateY(0)' },
+        ], { duration: 700, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+      }
+    }
     return;
   }
   directory.replaceChildren();
@@ -205,6 +237,7 @@ function renderDirectory() {
     button.setAttribute('aria-expanded', String(openFolder === folderIndex));
     button.setAttribute('aria-controls', `folder-${folderIndex}`);
     button.addEventListener('click', () => {
+      stopIntro();
       clearPreview();
       openFolder = openFolder === folderIndex ? null : folderIndex;
       windowStarts.set(folderIndex, 0);
@@ -303,6 +336,15 @@ directory.addEventListener('transitionend', event => {
   if (event.target === directory && event.propertyName === 'transform') fitWindow();
 });
 addEventListener('resize', () => { positionConnector(); fitWindow(); });
+reduced.addEventListener('change', event => {
+  if (event.matches) {
+    [...directory.children].forEach(section => section.getAnimations().forEach(animation => animation.cancel()));
+    fitWindow();
+  }
+});
 document.fonts.ready.then(fitWindow);
 renderDirectory();
 requestAnimationFrame(() => { document.querySelector('.files-page').classList.add('is-layout-ready'); highlight(rows()[0], true); });
+Promise.resolve(window.saiaPageReady).then(() => {
+  if (!introInterrupted) document.body.classList.add('files-intro-ready');
+});
