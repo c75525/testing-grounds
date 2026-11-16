@@ -157,8 +157,10 @@ try {
     // the first fill frame through completion, including overlapping surfaces.
     for (const material of baseMaterials) material.color.copy(canvasColor);
     for (const material of wordmarkMaterials) material.color.copy(headingColor);
-    entranceStarted = performance.now();
-    try { sessionStorage.setItem(entranceKey, '1'); } catch { /* Keep rendering if storage is unavailable. */ }
+    Promise.resolve(window.saiaPageReady).then(() => {
+      entranceStarted = performance.now();
+      try { sessionStorage.setItem(entranceKey, '1'); } catch { /* Keep rendering if storage is unavailable. */ }
+    });
   }, undefined, (error) => {
     console.error('Unable to load the SVG.', error);
     fallback.hidden = false;

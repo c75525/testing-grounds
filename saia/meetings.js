@@ -320,6 +320,7 @@ async function revealCards() {
     return image.decode().catch(() => {});
   });
   await document.fonts.ready;
+  await window.saiaPageReady;
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   for (let index = 0; index < cards.length; index += 1) {
     await ready[index];
