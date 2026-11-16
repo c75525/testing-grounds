@@ -26,9 +26,8 @@
 .folder-button[aria-expanded="true"]::before { transform: translateY(-50%) rotate(90deg); opacity: 1; }
 .directory-row:focus { outline: none; }
 .folder-items { margin: .2rem 0 .5rem 70px; padding: 0; list-style: none; }
-.folder-items { animation: folder-unfold 700ms cubic-bezier(.22, 1, .36, 1) both; }
-/* Only the first page entrance fades folder labels; selection never does. */
-.files-intro-ready .folder-button { animation: files-option-in .72s ease both; }
+.folder-items li { animation: file-row-in 320ms ease-in both; animation-delay: calc(var(--order) * 55ms); }
+.files-intro-ready .folder-button { opacity: 0; animation: files-option-in .72s ease both; }
 .files-intro-ready .folder:nth-child(1) .folder-button { animation-delay: .08s; }
 .files-intro-ready .folder:nth-child(2) .folder-button { animation-delay: .27s; }
 .files-intro-ready .folder:nth-child(3) .folder-button { animation-delay: .46s; }
@@ -45,7 +44,7 @@
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 [hidden] { display: none !important; }
 @keyframes files-option-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes folder-unfold { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+@keyframes file-row-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes preview-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @keyframes connector-in { to { transform: scaleX(1); } }
 @media (max-width: 640px) {
@@ -71,6 +70,6 @@
 @media (prefers-reduced-motion: reduce) {
   #directory { transition: none; }
   .directory-row, .directory-row::before { transition: none; }
-  .folder-items, .folder-items li, .files-intro-ready .folder-button, .preview-link { animation: none; }
+  .folder-items li, .files-intro-ready .folder-button, .preview-link { animation: none; opacity: 1; }
   .preview-connector.is-drawing, .file-preview::before { animation: none; transform: scaleX(1); }
 }
