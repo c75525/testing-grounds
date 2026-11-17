@@ -1,6 +1,8 @@
 .files-page { position: relative; width: 100%; height: calc(100svh - var(--nav-height)); overflow: hidden; }
 /* Reposition the original composition as a whole; preserve its internal geometry. */
 .files-layout { position: absolute; inset: 0; }
+.files-page.is-folder-opening { opacity: 0; }
+.files-page.is-folder-opening #directory { transition: none; }
 .files-page:not(.is-layout-ready) .files-layout { visibility: hidden; }
 .files-page.is-previewing .file-preview[hidden] { display: block !important; visibility: hidden; }
 .directory-panel { position: absolute; left: 16.5vw; top: 32%; width: 29vw; bottom: 1rem; }
@@ -26,7 +28,7 @@
 .folder-button[aria-expanded="true"]::before { transform: translateY(-50%) rotate(90deg); opacity: 1; }
 .directory-row:focus { outline: none; }
 .folder-items { margin: .2rem 0 .5rem 70px; padding: 0; list-style: none; }
-.folder-items li { animation: file-row-in 320ms ease-in both; animation-delay: calc(var(--order) * 55ms); }
+.folder-items li { animation: none; }
 .files-intro-ready .folder-button { opacity: 0; animation: files-option-in .72s ease both; }
 .files-intro-ready .folder:nth-child(1) .folder-button { animation-delay: .08s; }
 .files-intro-ready .folder:nth-child(2) .folder-button { animation-delay: .27s; }
@@ -68,6 +70,7 @@
 /* Windowed lists fit as a whole rather than clipping inside a scroll box. */
 #directory, .files-page.is-folder-browsing #directory { height: auto; overflow: visible; }
 @media (prefers-reduced-motion: reduce) {
+  .files-page.is-folder-opening { opacity: 1; }
   #directory { transition: none; }
   .directory-row, .directory-row::before { transition: none; }
   .folder-items li, .files-intro-ready .folder-button, .preview-link { animation: none; opacity: 1; }

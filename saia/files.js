@@ -10,6 +10,37 @@ let openFolder = null;
 let highlighted = null;
 let selected = null;
 let generation = 0;
+let folderEntrance = null;
+let folderEntranceToken = 0;
+function cancelFolderEntrance() {
+  folderEntranceToken += 1;
+  folderEntrance?.cancel();
+  folderEntrance = null;
+  document.querySelector('.files-page').classList.remove('is-folder-opening');
+}
+function fadeSpringFolder() {
+  cancelFolderEntrance();
+  if (reduced.matches) return;
+  const page = document.querySelector('.files-page');
+  const token = folderEntranceToken;
+  // Change to the final browsing size while hidden; animate opacity/position,
+  // never scale. Two frames allow layout and centering to settle first.
+  page.classList.add('is-folder-opening');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (token !== folderEntranceToken) return;
+    folderEntrance = page.animate([
+      { opacity: 0, transform: 'translateY(10px)', offset: 0 },
+      { opacity: .9, transform: 'translateY(-2px)', offset: .65 },
+      { opacity: 1, transform: 'translateY(0)', offset: 1 },
+    ], { duration: 480, easing: 'ease-out', fill: 'both' });
+    folderEntrance.onfinish = () => {
+      if (token !== folderEntranceToken) return;
+      page.classList.remove('is-folder-opening');
+      folderEntrance.cancel();
+      folderEntrance = null;
+    };
+  }));
+}
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
 let centerX = 0, centerY = 0, centerFrame = 0, centerUntil = 0;
@@ -127,6 +158,7 @@ function positionConnector() {
   connector.style.width = `${Math.max(0, target.left - label.right - 24)}px`;
 }
 async function showPreview(row, item) {
+  cancelFolderEntrance();
   const wasBrowsing = selected === null;
   clearPreview();
   selected = row;
@@ -205,6 +237,9 @@ function renderDirectory() {
     button.setAttribute('aria-expanded', String(openFolder === folderIndex));
     button.setAttribute('aria-controls', `folder-${folderIndex}`);
     button.addEventListener('click', () => {
+      document.body.classList.remove('files-intro-ready');
+      if (openFolder !== folderIndex) fadeSpringFolder();
+      else cancelFolderEntrance();
       clearPreview();
       openFolder = openFolder === folderIndex ? null : folderIndex;
       windowStarts.set(folderIndex, 0);
@@ -288,6 +323,7 @@ directory.addEventListener('keydown', event => {
 });
 addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
+  cancelFolderEntrance();
   if (selected) {
     const previous = selected;
     clearPreview(); highlight(previous, true);
@@ -303,6 +339,7 @@ directory.addEventListener('transitionend', event => {
   if (event.target === directory && event.propertyName === 'transform') fitWindow();
 });
 addEventListener('resize', () => { positionConnector(); fitWindow(); });
+reduced.addEventListener('change', event => { if (event.matches) cancelFolderEntrance(); });
 document.fonts.ready.then(fitWindow);
 renderDirectory();
 requestAnimationFrame(() => { document.querySelector('.files-page').classList.add('is-layout-ready'); highlight(rows()[0], true); });
