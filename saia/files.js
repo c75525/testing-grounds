@@ -47,6 +47,13 @@ let centerX = 0, centerY = 0, centerFrame = 0, centerUntil = 0;
 function requestCenter() {
   centerUntil = performance.now() + (reduced.matches ? 0 : 850);
   if (centerFrame) return;
+  const layoutStyle = getComputedStyle(document.querySelector('.files-layout'));
+  const layoutMatrix = new DOMMatrix(layoutStyle.transform);
+  centerX = layoutMatrix.m41;
+  centerY = layoutMatrix.m42;
+  const started = performance.now();
+  const startX = centerX;
+  const startY = centerY;
   function tick(now) {
     const page = document.querySelector('.files-page');
     const layout = document.querySelector('.files-layout');
@@ -60,8 +67,18 @@ function requestCenter() {
       const top = Math.min(...boxes.map(rect => rect.top));
       const bottom = Math.max(...boxes.map(rect => rect.bottom));
       const bounds = page.getBoundingClientRect();
-      centerX += bounds.left + bounds.width / 2 - (left + right) / 2;
-      centerY += bounds.top + bounds.height / 2 - (top + bottom) / 2;
+      const t = reduced.matches ? 1 : Math.min(1, (now - started) / 700);
+      const blend = t * t * (3 - 2 * t);
+      // Bounds include the wrapper translation; remove it before calculating
+      // the target so repeated frames never accumulate drift.
+      const localLeft = left - centerX;
+      const localRight = right - centerX;
+      const localTop = top - centerY;
+      const localBottom = bottom - centerY;
+      const targetX = bounds.left + bounds.width / 2 - (localLeft + localRight) / 2;
+      const targetY = bounds.top + bounds.height / 2 - (localTop + localBottom) / 2;
+      centerX = startX + (targetX - startX) * blend;
+      centerY = startY + (targetY - startY) * blend;
       layout.style.transform = `translate(${centerX}px, ${centerY}px)`;
       page.classList.add('is-layout-ready');
       positionConnector();
