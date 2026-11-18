@@ -43,52 +43,37 @@ function fadeSpringFolder() {
 }
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
-let centerX = 0, centerY = 0, centerFrame = 0, centerUntil = 0;
+let centerCorrectionTimer = 0;
+function scheduleCenterCorrection() {
+  clearTimeout(centerCorrectionTimer);
+  centerCorrectionTimer = setTimeout(() => { centerCorrectionTimer = 0; requestCenter(); }, reduced.matches ? 0 : 760);
+}
 function requestCenter() {
-  centerUntil = performance.now() + (reduced.matches ? 0 : 850);
-  if (centerFrame) return;
-  const layoutStyle = getComputedStyle(document.querySelector('.files-layout'));
-  const layoutMatrix = new DOMMatrix(layoutStyle.transform);
-  centerX = layoutMatrix.m41;
-  centerY = layoutMatrix.m42;
-  const started = performance.now();
-  const startX = centerX;
-  const startY = centerY;
-  function tick(now) {
-    const page = document.querySelector('.files-page');
-    const layout = document.querySelector('.files-layout');
-    const targets = [...directory.querySelectorAll('.directory-row, .list-more, .folder-items > li')]
-      .filter(el => !el.closest('[hidden]'));
-    if (selected) targets.push(preview);
-    const boxes = targets.map(el => el.getBoundingClientRect()).filter(rect => rect.width && rect.height);
-    if (boxes.length) {
-      const left = Math.min(...boxes.map(rect => rect.left));
-      const right = Math.max(...boxes.map(rect => rect.right));
-      const top = Math.min(...boxes.map(rect => rect.top));
-      const bottom = Math.max(...boxes.map(rect => rect.bottom));
-      const bounds = page.getBoundingClientRect();
-      const t = reduced.matches ? 1 : Math.min(1, (now - started) / 700);
-      const blend = t * t * (3 - 2 * t);
-      // Bounds include the wrapper translation; remove it before calculating
-      // the target so repeated frames never accumulate drift.
-      const localLeft = left - centerX;
-      const localRight = right - centerX;
-      const localTop = top - centerY;
-      const localBottom = bottom - centerY;
-      const targetX = bounds.left + bounds.width / 2 - (localLeft + localRight) / 2;
-      const targetY = bounds.top + bounds.height / 2 - (localTop + localBottom) / 2;
-      centerX = startX + (targetX - startX) * blend;
-      centerY = startY + (targetY - startY) * blend;
-      layout.style.transform = `translate(${centerX}px, ${centerY}px)`;
-      page.classList.add('is-layout-ready');
-      positionConnector();
-    }
-    centerFrame = now < centerUntil ? requestAnimationFrame(tick) : 0;
-  }
-  centerFrame = requestAnimationFrame(tick);
+  const page = document.querySelector('.files-page');
+  const layout = document.querySelector('.files-layout');
+  const targets = [...directory.querySelectorAll('.directory-row, .list-more-button')]
+    .filter(el => !el.closest('[hidden]'));
+  if (selected) targets.push(preview);
+  const boxes = targets.map(el => el.getBoundingClientRect()).filter(rect => rect.width && rect.height);
+  if (!boxes.length) return;
+  const left = Math.min(...boxes.map(rect => rect.left));
+  const right = Math.max(...boxes.map(rect => rect.right));
+  const top = Math.min(...boxes.map(rect => rect.top));
+  const bottom = Math.max(...boxes.map(rect => rect.bottom));
+  const pageBounds = page.getBoundingClientRect();
+  const layoutBounds = layout.getBoundingClientRect();
+  const currentX = layoutBounds.left - pageBounds.left;
+  const currentY = layoutBounds.top - pageBounds.top;
+  const targetX = currentX + pageBounds.width / 2 - (left + right) / 2;
+  const targetY = currentY + pageBounds.height / 2 - (top + bottom) / 2;
+  layout.style.transition = reduced.matches ? 'none' : 'transform 700ms cubic-bezier(.22, 1.22, .36, 1)';
+  layout.style.transform = `translate(${targetX}px, ${targetY}px)`;
+  page.classList.add('is-layout-ready');
+  requestAnimationFrame(positionConnector);
 }
 function fitWindow() {
   requestCenter();
+  scheduleCenterCorrection();
   if (openFolder === null) return;
   const list = document.querySelector(`#folder-${openFolder}`);
   const row = list.querySelector('.file-button');
@@ -126,6 +111,7 @@ function updateWindow(folderIndex, start) {
   list.querySelector('[data-direction="down"]').hidden = first + windowSize >= items.length;
   positionConnector();
   requestCenter();
+  scheduleCenterCorrection();
 }
 function revealRow(row) {
   if (!row?.classList.contains('file-button')) return;
@@ -142,6 +128,7 @@ function updateStage() {
   page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
   page.classList.toggle('is-previewing', selected !== null);
   requestAnimationFrame(fitWindow);
+  scheduleCenterCorrection();
 }
 function highlight(row, focus = false) {
   revealRow(row);
