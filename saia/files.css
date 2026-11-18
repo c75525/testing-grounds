@@ -12,7 +12,7 @@
 .files-page.is-folder-overview #directory { height: auto; overflow: visible; transform: translate(8vw, 2svh) scale(3); }
 .files-page.is-folder-browsing #directory { transform: translate(3vw, 0) scale(2); height: calc((58svh - 4rem) / 2); }
 .files-page.is-folder-overview .folder { margin-bottom: .6rem; }
-.files-page.is-folder-overview .folder-button { max-width: none; white-space: nowrap; }
+.files-page.is-folder-overview .folder-button { max-width: none; white-space: nowrap; left: 50%; transform: translateX(-50%); }
 #directory::-webkit-scrollbar { display: none; }
 .list-more { animation: none !important; }
 .list-more-button { display: block; padding: .15rem 0; border: 0; color: #fff; background: transparent; font: inherit; font-weight: 400; font-size: var(--type-ui, .875rem); line-height: 1.2; cursor: pointer; text-align: left; }
@@ -25,6 +25,7 @@
 .directory-row.is-highlighted { color: #e1dee8; }
 .directory-row.is-highlighted::before, .directory-row.is-selected::before { opacity: 1; }
 .folder-button[aria-expanded="true"] { padding-left: var(--nudge); }
+.files-page.is-folder-overview .folder-button.is-highlighted { transform: translateX(-50%); }
 .folder-button[aria-expanded="true"]::before { transform: translateY(-50%) rotate(90deg); opacity: 1; }
 .directory-row:focus { outline: none; }
 .folder-items { margin: .2rem 0 .5rem 70px; padding: 0; list-style: none; }
