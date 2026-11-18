@@ -168,8 +168,20 @@ async function showPreview(row, item) {
   updateStage();
   previewLink.href = item.url;
   previewLink.setAttribute('aria-label', `Open ${item.label} in a new tab`);
-  previewImage.src = './assets/files/placeholder.svg';
-  previewImage.alt = `${item.label} — temporary solid-color preview`;
+  const thumbnail = typeof FILE_THUMBNAILS !== 'undefined' ? FILE_THUMBNAILS[item.url] : null;
+  const source = thumbnail?.src || './assets/files/placeholder.svg';
+  previewImage.onerror = () => {
+    if (token !== generation || previewImage.getAttribute('src') !== source) return;
+    previewImage.onerror = null;
+    previewImage.src = './assets/files/placeholder.svg';
+    previewImage.alt = `${item.label} — website preview unavailable`;
+  };
+  previewImage.alt = thumbnail ? `${item.label} — website screenshot` : `${item.label} — website preview unavailable`;
+  previewImage.src = source;
+  const imageReady = Promise.race([
+    previewImage.decode().catch(() => {}),
+    new Promise(resolve => setTimeout(resolve, 1500)),
+  ]);
   const space = document.createElement('span');
   space.className = 'caption-space';
   space.textContent = item.description;
@@ -181,6 +193,7 @@ async function showPreview(row, item) {
   caption.setAttribute('aria-label', item.description);
   fitWindow();
   if (wasBrowsing && !reduced.matches) await new Promise(resolve => setTimeout(resolve, 720));
+  await imageReady;
   if (token !== generation) return;
   preview.hidden = false;
   // Restart only the new preview, without moving its containing frame.
