@@ -66,11 +66,17 @@ function fitWindow() {
   // CSS zoom participates in layout, unlike transform:scale. Thus the browser
   // always centers the actual current footprint, not an invisible oversized box.
   directory.style.setProperty('--directory-scale', 1);
-  let scale = selected || closing ? 1 : openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : 2;
+  const activeList = openFolder === null ? null : document.querySelector(`#folder-${openFolder}`);
+  const activeItems = activeList ? [...activeList.querySelectorAll('.file-button')] : [];
+  // An empty folder is a single tertiary-level line, not a browsing panel.
+  // Keep its 1× scale when leaving a selected file so Resources does not
+  // inflate after the preview has begun its smooth close.
+  const emptyFolder = openFolder !== null && activeItems.length === 0;
+  let scale = selected || closing || emptyFolder ? 1 : openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : 2;
   scale = Math.min(scale, availableWidth / Math.max(1, directory.offsetWidth));
   if (openFolder !== null) {
-    const list = document.querySelector(`#folder-${openFolder}`);
-    const items = [...list.querySelectorAll('.file-button')];
+    const list = activeList;
+    const items = activeItems;
     if (items.length) {
       const rowHeight = items.find(item => !item.parentElement.hidden)?.offsetHeight || 27;
       const visibleCount = items.filter(item => !item.parentElement.hidden).length;
