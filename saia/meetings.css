@@ -134,7 +134,8 @@ html { scroll-behavior: auto; }
   text-align: left;
 }
 .meeting-card:not(.is-selected) { opacity: 1; }
-.meeting-card .archive-art { height: 100%; box-shadow: 0 3px 9px rgb(0 0 0 / 25%); }
+.meeting-card .archive-art { position: relative; height: 100%; box-shadow: 0 3px 9px rgb(0 0 0 / 25%); }
+.meeting-card .archive-art::after { content: ''; position: absolute; z-index: 1; inset: 0; pointer-events: none; background: rgb(225 222 232 / var(--trail-wash, 0)); }
 .meeting-card .archive-art img {
   display: block;
   width: 100%;
@@ -161,13 +162,12 @@ html { scroll-behavior: auto; }
 }
 /* Hide even before JS runs: no placeholder/artwork flash on a cold load. */
 .meeting-card:not(.is-revealed) { opacity: 0; }
-.meeting-card.is-revealed { opacity: var(--spiral-opacity, 1); }
 .meeting-card.is-entering.is-revealed {
   animation: meeting-card-fade-up .95s cubic-bezier(.42, 0, .58, 1) both;
 }
 @keyframes meeting-card-fade-up {
   from { opacity: 0; translate: 0 .75rem; }
-  to { opacity: var(--spiral-opacity, 1); translate: 0 0; }
+  to { opacity: 1; translate: 0 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .meeting-card.is-entering.is-revealed { transition: none; animation: none; translate: none; opacity: 1; }

@@ -224,10 +224,10 @@ function render() {
     // Entrance opacity is owned by CSS, independently of spiral transforms.
     // The archive viewport clips departing cards naturally at the page edge.
     card.style.pointerEvents = relative < -1 ? 'none' : 'auto';
-    // Receding images dissolve into the background, so the visible foreground
-    // reads as an image trail rather than a fully legible spiral diagram.
-    const trailOpacity = relative <= 0 ? 1 : Math.max(.08, Math.exp(-relative * .45));
-    card.style.setProperty('--spiral-opacity', trailOpacity.toFixed(3));
+    // Receding images retain their opacity but wash progressively toward the
+    // archive's pale #e1dee8 reference color, obscuring the full spiral.
+    const trailWash = relative <= 0 ? 0 : 1 - Math.exp(-relative * .34);
+    card.style.setProperty('--trail-wash', trailWash.toFixed(3));
     const distance = Math.abs(relative);
     // Departing cards move toward the camera and must stay above the new focus.
     card.style.zIndex = relative < 0
