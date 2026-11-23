@@ -10,6 +10,7 @@ let openFolder = null;
 let highlighted = null;
 let selected = null;
 let generation = 0;
+let previewClosingTimer = 0;
 let folderEntrance = null;
 let folderEntranceToken = 0;
 function cancelFolderEntrance() {
@@ -29,9 +30,9 @@ function fadeSpringFolder() {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (token !== folderEntranceToken) return;
     folderEntrance = page.animate([
-      { opacity: 0, transform: 'translateY(10px)', offset: 0 },
-      { opacity: .9, transform: 'translateY(-2px)', offset: .65 },
-      { opacity: 1, transform: 'translateY(0)', offset: 1 },
+      { opacity: 0, offset: 0 },
+      { opacity: .9, offset: .65 },
+      { opacity: 1, offset: 1 },
     ], { duration: 480, easing: 'ease-out', fill: 'both' });
     folderEntrance.onfinish = () => {
       if (token !== folderEntranceToken) return;
@@ -43,59 +44,50 @@ function fadeSpringFolder() {
 }
 const maxWindowSize = 8;
 let windowSize = maxWindowSize;
-let centerCorrectionTimer = 0;
-function scheduleCenterCorrection() {
-  clearTimeout(centerCorrectionTimer);
-  centerCorrectionTimer = setTimeout(() => { centerCorrectionTimer = 0; requestCenter(); }, reduced.matches ? 0 : 760);
-}
-function requestCenter() {
-  const page = document.querySelector('.files-page');
-  const layout = document.querySelector('.files-layout');
-  const targets = [...directory.querySelectorAll('.directory-row, .list-more-button')]
-    .filter(el => !el.closest('[hidden]'));
-  if (selected) targets.push(preview);
-  const boxes = targets.map(el => el.getBoundingClientRect()).filter(rect => rect.width && rect.height);
-  if (!boxes.length) return;
-  const left = Math.min(...boxes.map(rect => rect.left));
-  const right = Math.max(...boxes.map(rect => rect.right));
-  const top = Math.min(...boxes.map(rect => rect.top));
-  const bottom = Math.max(...boxes.map(rect => rect.bottom));
-  const pageBounds = page.getBoundingClientRect();
-  const layoutBounds = layout.getBoundingClientRect();
-  const currentX = layoutBounds.left - pageBounds.left;
-  const currentY = layoutBounds.top - pageBounds.top;
-  const targetX = currentX + pageBounds.width / 2 - (left + right) / 2;
-  const targetY = currentY + pageBounds.height / 2 - (top + bottom) / 2;
-  layout.style.transition = reduced.matches ? 'none' : 'transform 700ms cubic-bezier(.22, 1.22, .36, 1)';
-  layout.style.transform = `translate(${targetX}px, ${targetY}px)`;
-  page.classList.add('is-layout-ready');
-  requestAnimationFrame(positionConnector);
-}
 function fitWindow() {
-  requestCenter();
-  scheduleCenterCorrection();
-  if (openFolder === null) return;
-  const list = document.querySelector(`#folder-${openFolder}`);
-  const row = list.querySelector('.file-button');
-  if (!row) return;
-  const scale = selected ? 1 : 2;
   const page = document.querySelector('.files-page');
-  const panel = document.querySelector('.directory-panel');
-  const items = [...list.querySelectorAll('.file-button')];
-  const rowHeight = items.find(item => !item.parentElement.hidden)?.offsetHeight || 27;
-  const visibleCount = items.filter(item => !item.parentElement.hidden).length;
-  const arrowStyle = getComputedStyle(list.querySelector('.list-more-button'));
-  const arrowHeight = parseFloat(arrowStyle.lineHeight) + parseFloat(arrowStyle.paddingTop) + parseFloat(arrowStyle.paddingBottom);
-  const missingArrows = [...list.querySelectorAll('.list-more')].filter(item => item.hidden).length;
-  const overhead = directory.scrollHeight - visibleCount * rowHeight + missingArrows * arrowHeight;
-  let available = page.clientHeight - 32;
-  if (selected) {
-    if (innerWidth <= 640) available = preview.offsetTop - panel.offsetTop - 20;
-    else available -= Math.max(0, panel.offsetTop - preview.offsetTop);
+  const style = getComputedStyle(page);
+  const mobile = innerWidth <= 640;
+  const closing = page.classList.contains('is-closing-preview');
+  const width = page.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  let height = page.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+  // Matches the established desktop preview proportion (48.5vw–83.5vw)
+  // rather than capping an ultrawide display at a small fixed card.
+  const previewWidth = mobile ? width : Math.min(width, Math.max(400, innerWidth * .35));
+  const gap = mobile ? 20 : Math.min(64, width * .07);
+  page.style.setProperty('--preview-width', `${previewWidth}px`);
+  page.style.setProperty('--preview-gap', `${gap}px`);
+  page.style.setProperty('--preview-height', `${preview.offsetHeight}px`);
+  const closingBox = document.querySelector('.preview-panel').getBoundingClientRect();
+  const occupiedWidth = selected ? previewWidth : closing ? closingBox.width : 0;
+  const occupiedHeight = selected ? preview.offsetHeight : closing ? closingBox.height : 0;
+  const availableWidth = (selected || closing) && !mobile ? width - occupiedWidth - gap : width;
+  if ((selected || closing) && mobile) height -= occupiedHeight + gap;
+  // CSS zoom participates in layout, unlike transform:scale. Thus the browser
+  // always centers the actual current footprint, not an invisible oversized box.
+  directory.style.setProperty('--directory-scale', 1);
+  let scale = selected || closing ? 1 : openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : 2;
+  scale = Math.min(scale, availableWidth / Math.max(1, directory.offsetWidth));
+  if (openFolder !== null) {
+    const list = document.querySelector(`#folder-${openFolder}`);
+    const items = [...list.querySelectorAll('.file-button')];
+    if (items.length) {
+      const rowHeight = items.find(item => !item.parentElement.hidden)?.offsetHeight || 27;
+      const visibleCount = items.filter(item => !item.parentElement.hidden).length;
+      const arrowStyle = getComputedStyle(list.querySelector('.list-more-button'));
+      const arrowHeight = parseFloat(arrowStyle.lineHeight) + parseFloat(arrowStyle.paddingTop) + parseFloat(arrowStyle.paddingBottom);
+      const missingArrows = [...list.querySelectorAll('.list-more')].filter(item => item.hidden).length;
+      const overhead = directory.offsetHeight - visibleCount * rowHeight + missingArrows * arrowHeight;
+      windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((height / scale - overhead) / rowHeight)));
+      updateWindow(openFolder, windowStarts.get(openFolder) || 0);
+      const cursor = selected || highlighted;
+      if (cursor?.classList.contains('file-button') && Number(cursor.dataset.parent) === openFolder) revealRow(cursor);
+    }
   }
-  windowSize = Math.max(1, Math.min(maxWindowSize, Math.floor((available / scale - overhead) / rowHeight)));
-  updateWindow(openFolder, windowStarts.get(openFolder) || 0);
-  if (highlighted?.classList.contains('file-button') && Number(highlighted.dataset.parent) === openFolder) revealRow(highlighted);
+  scale = Math.max(.1, Math.min(scale, height / Math.max(1, directory.offsetHeight)));
+  directory.style.setProperty('--directory-scale', scale);
+  page.classList.add('is-layout-ready');
+  positionConnector();
 }
 const windowStarts = new Map();
 function updateWindow(folderIndex, start) {
@@ -110,8 +102,6 @@ function updateWindow(folderIndex, start) {
   list.querySelector('[data-direction="up"]').hidden = first === 0;
   list.querySelector('[data-direction="down"]').hidden = first + windowSize >= items.length;
   positionConnector();
-  requestCenter();
-  scheduleCenterCorrection();
 }
 function revealRow(row) {
   if (!row?.classList.contains('file-button')) return;
@@ -127,8 +117,8 @@ function updateStage() {
   page.classList.toggle('is-folder-overview', openFolder === null);
   page.classList.toggle('is-folder-browsing', openFolder !== null && selected === null);
   page.classList.toggle('is-previewing', selected !== null);
+  document.querySelector('.preview-panel').inert = selected === null;
   requestAnimationFrame(fitWindow);
-  scheduleCenterCorrection();
 }
 function highlight(row, focus = false) {
   revealRow(row);
@@ -142,13 +132,33 @@ function highlight(row, focus = false) {
   }
 }
 function clearPreview() {
+  const page = document.querySelector('.files-page');
+  const wasPreview = selected !== null;
   generation += 1;
+  if (wasPreview && !reduced.matches) {
+    clearTimeout(previewClosingTimer);
+    page.classList.add('is-closing-preview');
+    previewClosingTimer = setTimeout(() => {
+      page.classList.remove('is-closing-preview');
+      fitWindow();
+    }, 500);
+  }
   selected?.classList.remove('is-selected');
   selected?.setAttribute('aria-pressed', 'false');
   selected = null;
   preview.hidden = true;
   connector.classList.remove('is-drawing');
   updateStage();
+}
+let connectorFrame = 0;
+function followConnector() {
+  cancelAnimationFrame(connectorFrame);
+  const end = performance.now() + (reduced.matches ? 0 : 550);
+  function frame(now) {
+    positionConnector();
+    connectorFrame = now < end ? requestAnimationFrame(frame) : 0;
+  }
+  connectorFrame = requestAnimationFrame(frame);
 }
 function positionConnector() {
   if (!selected || preview.hidden) return;
@@ -163,13 +173,8 @@ function positionConnector() {
 }
 async function showPreview(row, item) {
   cancelFolderEntrance();
-  const wasBrowsing = selected === null;
   clearPreview();
-  selected = row;
-  row.classList.add('is-selected');
-  row.setAttribute('aria-pressed', 'true');
   const token = generation;
-  updateStage();
   previewLink.href = item.url;
   previewLink.setAttribute('aria-label', `Open ${item.label} in a new tab`);
   const thumbnail = typeof FILE_THUMBNAILS !== 'undefined' ? FILE_THUMBNAILS[item.url] : null;
@@ -195,15 +200,17 @@ async function showPreview(row, item) {
   typed.setAttribute('aria-hidden', 'true');
   caption.replaceChildren(space, typed);
   caption.setAttribute('aria-label', item.description);
-  fitWindow();
-  if (wasBrowsing && !reduced.matches) await new Promise(resolve => setTimeout(resolve, 720));
   await imageReady;
-  if (token !== generation) return;
+  if (token !== generation || openFolder !== Number(row.dataset.parent)) return;
+  clearTimeout(previewClosingTimer);
+  document.querySelector('.files-page').classList.remove('is-closing-preview');
+  selected = row;
+  row.classList.add('is-selected');
+  row.setAttribute('aria-pressed', 'true');
   preview.hidden = false;
-  // Restart only the new preview, without moving its containing frame.
-  previewLink.style.animation = 'none';
-  void previewLink.offsetWidth;
-  previewLink.style.animation = '';
+  updateStage();
+  fitWindow();
+  followConnector();
   positionConnector();
   void connector.offsetWidth;
   connector.classList.add('is-drawing');
@@ -308,6 +315,7 @@ function renderDirectory() {
         updateWindow(folderIndex, start + (direction === 'up' ? -windowSize : windowSize));
         const next = list.querySelector(`.file-button[data-index="${windowStarts.get(folderIndex)}"]`);
         highlight(next, true);
+        fitWindow();
         status.textContent = `Showing items ${windowStarts.get(folderIndex) + 1}–${Math.min(folder.items.length, windowStarts.get(folderIndex) + windowSize)} of ${folder.items.length}.`;
       });
       control.append(arrow);
