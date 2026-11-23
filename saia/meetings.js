@@ -164,6 +164,7 @@ const link = detail.querySelector('.meeting-detail__instagram-link');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let activeIndex = -1;
 let queued = false;
+let spiralAnchorViewport = '';
 
 // Square Jump-style discrete navigation: one adjacent item, 550ms cubic easing.
 let settledStep = 0;
@@ -230,12 +231,18 @@ function render() {
       : String(100 - Math.round(relative * 10));
   });
   select(selected);
-  // Center the foreground artwork + copy inside the navigation-safe viewport.
-  const archive = document.querySelector('.archive');
-  const nav = document.querySelector('.bottom-nav');
-  const detailGap = parseFloat(getComputedStyle(detail).marginTop);
-  const groupHeight = scroller.offsetHeight + detail.offsetHeight + detailGap;
-  archive.style.paddingTop = `${Math.max(24, (nav.getBoundingClientRect().top - groupHeight) / 2)}px`;
+  // The spiral's anchor belongs to the archive viewport—not to the variable
+  // meeting copy. Set it once per viewport; selecting a different description
+  // must never shift the photos by a few pixels.
+  const viewport = `${innerWidth}x${innerHeight}`;
+  if (spiralAnchorViewport !== viewport) {
+    const archive = document.querySelector('.archive');
+    const nav = document.querySelector('.bottom-nav');
+    const detailGap = parseFloat(getComputedStyle(detail).marginTop);
+    const initialGroupHeight = scroller.offsetHeight + detail.offsetHeight + detailGap;
+    archive.style.paddingTop = `${Math.max(24, (nav.getBoundingClientRect().top - initialGroupHeight) / 2)}px`;
+    spiralAnchorViewport = viewport;
+  }
 }
 function scheduleRender() {
   if (!queued) { queued = true; requestAnimationFrame(render); }
@@ -304,12 +311,16 @@ addEventListener('touchend', event => {
   if (Math.abs(delta) > 30) goTo(settledStep + Math.sign(delta));
 }, { passive: true });
 addEventListener('resize', () => {
+  spiralAnchorViewport = '';
   cancelAnimationFrame(snapFrame);
   isSnapping = false;
   scheduleRender();
 });
 reducedMotion.addEventListener('change', scheduleRender);
-document.fonts.ready.then(scheduleRender);
+document.fonts.ready.then(() => {
+  spiralAnchorViewport = '';
+  scheduleRender();
+});
 render();
 
 async function revealCards() {
