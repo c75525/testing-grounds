@@ -4,6 +4,7 @@
 .files-page.is-previewing .files-layout { gap: var(--preview-gap, 64px); }
 .directory-panel { position: relative; flex: none; }
 #directory { width: max-content; height: auto; zoom: var(--directory-scale, 1); }
+.files-page.is-closing-preview #directory { transition: zoom 480ms cubic-bezier(.22, 1, .36, 1); }
 .files-page:not(.is-layout-ready) .files-layout { visibility: hidden; }
 .files-page.is-folder-opening { opacity: 0; }
 .folder { margin-bottom: 1.5rem; }
@@ -53,7 +54,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .files-page.is-folder-opening { opacity: 1; }
-  .files-layout, .preview-panel, .directory-row, .directory-row::before { transition: none; }
+  .files-layout, .preview-panel, #directory, .directory-row, .directory-row::before { transition: none; }
   .files-intro-ready .folder-button, .preview-connector.is-drawing { animation: none; opacity: 1; }
   .preview-connector.is-drawing { transform: scaleX(1); }
 }

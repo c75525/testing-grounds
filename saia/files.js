@@ -72,7 +72,9 @@ function fitWindow() {
   // Keep its 1× scale when leaving a selected file so Resources does not
   // inflate after the preview has begun its smooth close.
   const emptyFolder = openFolder !== null && activeItems.length === 0;
-  let scale = selected || closing || emptyFolder ? 1 : openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : 2;
+  // Closing a preview grows the folder view during the same interval that the
+  // card collapses. CSS interpolates zoom, and flex centers each live footprint.
+  let scale = selected || emptyFolder ? 1 : openFolder === null ? (innerWidth <= 380 ? 2.5 : 3) : 2;
   scale = Math.min(scale, availableWidth / Math.max(1, directory.offsetWidth));
   if (openFolder !== null) {
     const list = activeList;
