@@ -166,14 +166,18 @@ let activeIndex = -1;
 let queued = false;
 let spiralAnchorViewport = '';
 
-// Square Jump-style discrete navigation: one adjacent item, 550ms cubic easing.
+// Discrete navigation with one shared damped-spring progression. Position,
+// scale, depth and color wash therefore accelerate and settle as one motion.
 let settledStep = 0;
 let position = 0;
 let isSnapping = false;
 let snapFrame;
 let touchStartY = null;
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-const cubicInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const springDuration = 780;
+const springResponse = t => 1 - Math.exp(-8.5 * t) * (Math.cos(8.3 * t) + 1.024 * Math.sin(8.3 * t));
+const springEnd = springResponse(1);
+const springEase = t => springResponse(t) / springEnd;
 
 // Continuous logarithmic spiral: foreground at zero, tightening hook in the distance.
 // Keep photographs upright; their positions and sizes describe the spiral.
@@ -257,18 +261,19 @@ function goTo(index) {
   const target = clamp(index, 0, cards.length - 1);
   const start = position;
   if (Math.abs(target - start) < 0.001) { settledStep = target; return; }
-  const duration = reducedMotion.matches ? 0 : 550;
+  const duration = reducedMotion.matches ? 0 : springDuration;
   const started = performance.now();
   isSnapping = true;
   function tick(now) {
     const t = duration ? clamp((now - started) / duration, 0, 1) : 1;
-    position = start + (target - start) * cubicInOut(t);
+    position = start + (target - start) * springEase(t);
     render();
     if (t < 1) snapFrame = requestAnimationFrame(tick);
     else {
       position = target;
       settledStep = target;
       isSnapping = false;
+      render();
     }
   }
   snapFrame = requestAnimationFrame(tick);
