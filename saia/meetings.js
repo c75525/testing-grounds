@@ -226,7 +226,8 @@ function render() {
     card.style.pointerEvents = relative < -1 ? 'none' : 'auto';
     // Receding images retain their opacity but wash progressively toward the
     // archive's pale #e1dee8 reference color, obscuring the full spiral.
-    const trailWash = relative <= 0 ? 0 : 1 - Math.exp(-relative * .34);
+    const washedDepth = Math.max(0, relative - 3);
+    const trailWash = 1 - Math.exp(-washedDepth * .22);
     card.style.setProperty('--trail-wash', trailWash.toFixed(3));
     const distance = Math.abs(relative);
     // Departing cards move toward the camera and must stay above the new focus.
