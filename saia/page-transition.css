@@ -1,6 +1,10 @@
-/* Match saia.center: font-ready + 500ms pause, then opacity 1s ease. */
-html.page-loading body { opacity: 0; }
-html.page-entering body { animation: saia-page-enter 1s ease both; }
+/* Match saia.center: font-ready + 500ms pause, then opacity 1s ease.
+   The fixed nav joins this welcome once per tab; later page changes fade only
+   their content so navigation remains continuously available. */
+html.page-loading:not(.page-returning) body { opacity: 0; }
+html.page-entering:not(.page-returning) body { animation: saia-page-enter 1s ease both; }
+html.page-loading.page-returning body > :not(.bottom-nav) { opacity: 0; }
+html.page-entering.page-returning body > :not(.bottom-nav) { animation: saia-page-enter 1s ease both; }
 @keyframes saia-page-enter { from { opacity: 0; } to { opacity: 1; } }
 /* Home copy follows the page fade in a restrained top-to-bottom stagger. */
 body.home-copy-ready .copy p { opacity: 0; animation: home-copy-enter .72s ease both; }
@@ -9,6 +13,8 @@ body.home-copy-ready .copy p:nth-child(2) { animation-delay: .27s; }
 body.home-copy-ready .copy p:nth-child(3) { animation-delay: .46s; }
 @keyframes home-copy-enter { from { opacity: 0; transform: translateY(.45rem); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) {
-  html.page-loading body, html.page-entering body { opacity: 1; animation: none; }
+  html.page-loading body, html.page-entering body,
+  html.page-loading.page-returning body > :not(.bottom-nav),
+  html.page-entering.page-returning body > :not(.bottom-nav) { opacity: 1; animation: none; }
   body.home-copy-ready .copy p { opacity: 1; animation: none; transform: none; }
 }

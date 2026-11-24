@@ -3,6 +3,12 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let resolveReady;
   let started = false;
+  // The fixed navigation should participate in the welcome only once per tab.
+  // Later page changes retain their content entrance without replaying the nav.
+  let returningVisit = false;
+  try {
+    returningVisit = sessionStorage.getItem('saia-page-entrance-played') === 'true';
+  } catch {}
   let pauseTimer;
   let cleanupTimer;
   window.saiaPageReady = new Promise(resolve => { resolveReady = resolve; });
@@ -18,6 +24,7 @@
     if (started) return;
     if (reduced.matches) { finish(); return; }
     started = true;
+    try { sessionStorage.setItem('saia-page-entrance-played', 'true'); } catch {}
     root.classList.replace('page-loading', 'page-entering');
     resolveReady();
     cleanupTimer = setTimeout(finish, 1150);
@@ -26,6 +33,7 @@
   const failsafe = setTimeout(finish, 3500);
   if (reduced.matches) { finish(); return; }
   root.classList.add('page-loading');
+  if (returningVisit) root.classList.add('page-returning');
   document.addEventListener('DOMContentLoaded', async () => {
     await Promise.race([
       document.fonts.ready,
